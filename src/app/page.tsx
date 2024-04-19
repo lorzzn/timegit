@@ -1,14 +1,18 @@
-import { Button, NextUIProvider } from "@nextui-org/react"
+import { Button } from "@nextui-org/react"
+import Head from "next/head"
 import Link from "next/link"
 
 export default function Index() {
   return (
-    <NextUIProvider>
+    <div>
+      <Head>
+        <title>Timegit</title>
+      </Head>
       <main>
         <Link href="/login">
-          <Button>你好，登录！</Button>
+          <Button>go login</Button>
         </Link>
       </main>
-    </NextUIProvider>
+    </div>
   )
 }
