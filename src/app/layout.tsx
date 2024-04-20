@@ -1,8 +1,8 @@
-import Header from "@/components/Header"
 import { NextAuthProvider } from "@/components/NextAuthProvider"
-import { twclx } from "@/utils/twclx"
 import { NextUIProvider } from "@nextui-org/react"
 import type { Metadata } from "next"
+import Content from "./components/Content"
+import Header from "./components/Header"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -17,12 +17,18 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body>
+      <body suppressHydrationWarning>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'var t;try{var l=localStorage.getItem("theme");t=JSON.parse(l)}catch(e){t="light"}document.body.setAttribute("data-theme", t);',
+          }}
+        />
         <NextAuthProvider>
           <NextUIProvider>
-            <div className={twclx(["flex min-h-screen flex-col w-full"])}>
+            <div className="min-h-screen flex flex-col w-full">
               <Header />
-              <div className={twclx(["flex-1 w-full flex flex-col"])}>{children}</div>
+              <Content>{children}</Content>
             </div>
           </NextUIProvider>
         </NextAuthProvider>
