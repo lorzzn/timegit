@@ -1,14 +1,32 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import NextAuth, { AuthOptions } from "next-auth"
 import GitHubProvider from "next-auth/providers/github"
+import { Provider } from "next-auth/providers/index"
+
+const providers: Provider[] = [
+  GitHubProvider({
+    clientId: process.env.GITHUB_OAUTH_CLIENT_ID!,
+    clientSecret: process.env.GITHUB_OAUTH_SECRET!,
+    httpOptions: {
+      timeout: 100000,
+    },
+  }),
+]
+
+export const providerMap = providers.map((provider: any) => {
+  if (typeof provider === "function") {
+    const providerData = provider()
+    return { id: providerData.id, name: providerData.name }
+  } else {
+    return { id: provider.id, name: provider.name }
+  }
+})
 
 const options: AuthOptions = {
-  providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_OAUTH_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_OAUTH_SECRET!,
-    }),
-  ],
+  providers,
+  pages: {
+    signIn: "/signin",
+  },
 }
 
 function AuthHandler(req: NextApiRequest, res: NextApiResponse) {

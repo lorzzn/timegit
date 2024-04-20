@@ -1,5 +1,6 @@
 "use client"
 
+import Logo from "@/components/Logo"
 import useBodyTheme from "@/hooks/useBodyTheme"
 import { twclx } from "@/utils/twclx"
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Skeleton, User } from "@nextui-org/react"
@@ -24,8 +25,8 @@ const Header = () => {
     <header
       className={twclx(["w-full flex justify-between items-center h-12 bg-foreground-100 px-6 sm:px-28 backdrop-blur"])}
     >
-      <Link className={twclx(["font-mono font-bold text-xl mr-24"])} href="/">
-        Timegit
+      <Link className={twclx(["mr-24"])} href="/">
+        <Logo />
       </Link>
 
       <div className={twclx(["flex space-x-4 items-center"])}>
@@ -46,7 +47,7 @@ const Header = () => {
               color="primary"
               className="font-semibold"
             >
-              signin with Github
+              Sign in
             </Button>
           )}
 
