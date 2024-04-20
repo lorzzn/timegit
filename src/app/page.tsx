@@ -1,5 +1,5 @@
-import { Button } from "@nextui-org/react"
+import Link from "next/link"
 
 export default function Index() {
-  return <Button>hello index</Button>
+  return <Link href="/about">about</Link>
 }
