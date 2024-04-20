@@ -22,7 +22,7 @@ const Header = () => {
 
   return (
     <header
-      className={twclx(["w-full flex justify-between items-center h-12 bg-foreground-100 px-8 sm:px-28 backdrop-blur"])}
+      className={twclx(["w-full flex justify-between items-center h-12 bg-foreground-100 px-6 sm:px-28 backdrop-blur"])}
     >
       <Link className={twclx(["font-mono font-bold text-xl mr-24"])} href="/">
         Timegit

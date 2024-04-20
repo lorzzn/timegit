@@ -5,7 +5,7 @@ type ContentProps = {
 }
 
 const Content = (props: ContentProps) => {
-  return <main className={twclx(["flex-1 w-full flex flex-col"])}>{props.children}</main>
+  return <main className={twclx(["flex-1 w-full flex flex-col px-8 sm:px-36 pt-8"])}>{props.children}</main>
 }
 
 export default Content
