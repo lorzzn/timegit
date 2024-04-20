@@ -1,11 +1,17 @@
 import { auth } from "@/auth"
+import { ghapi } from "@/utils/ghapi"
 import Link from "next/link"
 
-export default function Index() {
-  const getUserData = async () => {
-    const session = await auth()
-    console.log("jwt: ", session)
+export default async function Index() {
+  const session = await auth()
+
+  const getRepoInfo = async () => {
+    const response = await ghapi("/user", {})
+    const data = await response.json()
+    console.log(data)
   }
-  getUserData()
+
+  getRepoInfo()
+
   return <Link href="/about">about</Link>
 }
