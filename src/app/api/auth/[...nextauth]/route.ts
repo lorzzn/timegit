@@ -7,6 +7,7 @@ const providers: Provider[] = [
   GitHubProvider({
     clientId: process.env.GITHUB_OAUTH_CLIENT_ID!,
     clientSecret: process.env.GITHUB_OAUTH_SECRET!,
+    authorization: { params: { scope: "read:user user:email repo repo:write" } },
     httpOptions: {
       timeout: 100000,
     },
