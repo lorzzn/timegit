@@ -1,10 +1,10 @@
 "use client"
 
+import { providerMap } from "@/auth"
 import Logo from "@/components/Logo"
 import { Button, Card, CardBody, CardHeader } from "@nextui-org/react"
 import { RiGithubFill } from "@remixicon/react"
 import { signIn, useSession } from "next-auth/react"
-import { providerMap } from "../api/auth/[...nextauth]/route"
 
 export default function Signin() {
   const session = useSession()
