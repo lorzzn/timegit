@@ -1,5 +1,4 @@
 import { NextAuthProvider } from "@/components/NextAuthProvider"
-import { Toast } from "@/components/Toast"
 import Content from "@/layout/components/Content"
 import Header from "@/layout/components/Header"
 import Provider from "@/trpc/client/provider"
@@ -16,7 +15,6 @@ const Layout = (props: PropsWithChildren) => {
             <Header />
             <Content>{props.children}</Content>
           </div>
-          <Toast />
         </NextUIProvider>
       </NextAuthProvider>
     </Provider>
