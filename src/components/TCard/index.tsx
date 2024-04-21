@@ -40,9 +40,7 @@ const TCard = (props: TCardProps) => {
       </CardBody>
       <CardFooter className={twclx([{ hidden: !props.footer }, props.classNames?.footer])}>
         {props.footerIsError ? (
-          <div className={twclx(["text-small text-red-600 flex-1 text-center break-words w-full line-clamp-3"])}>
-            {props.footer}
-          </div>
+          <div className={twclx(["text-small text-red-600 flex-1 text-center break-words w-0"])}>{props.footer}</div>
         ) : (
           props.footer
         )}

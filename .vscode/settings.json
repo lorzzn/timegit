@@ -1,4 +1,12 @@
 {
+  "prettier.endOfLine": "lf",
+  "files.eol": "\n",
+  "tailwindCSS.experimental.classRegex": [
+    "tw`([^`]*)", // tw`...`
+    "'([^']*)'",
+    "classNames\\(([^)]+)\\)",
+    "twclx\\(([^)]+)\\)"
+  ],
   "files.associations": {
     "*.css": "tailwindcss"
   }
