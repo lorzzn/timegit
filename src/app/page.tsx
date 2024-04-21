@@ -1,17 +1,31 @@
-import { auth } from "@/auth"
+import { ServerSession, auth } from "@/auth"
+import { getEnv } from "@/utils/env"
 import { ghapi } from "@/utils/ghapi"
-import Link from "next/link"
+import { redirect } from "next/navigation"
 
-export default async function Index() {
+const fetchRepo = async (session: ServerSession) => {
+  const repoUrl = `/repos/${session?.login}/${getEnv("TIMEGIT_REPO")}`
+  const res = await ghapi(repoUrl)
+
+  if (res.status === 404) {
+    redirect("/setup")
+  } else {
+    redirect("/home")
+  }
+}
+
+export default async function App() {
   const session = await auth()
 
-  const getRepoInfo = async () => {
-    const response = await ghapi("/user", {})
-    const data = await response.json()
-    console.log(data)
+  if (session !== null) {
+    await fetchRepo(session)
   }
 
-  getRepoInfo()
-
-  return <Link href="/about">about</Link>
+  return (
+    <div className="flex-1 w-full flex flex-col items-center ">
+      <div className="">
+        <div>Manage your time here</div>
+      </div>
+    </div>
+  )
 }

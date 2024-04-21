@@ -1,12 +1,15 @@
+import { getEnv } from "@/utils/env"
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next"
 import { NextAuthOptions, Session, getServerSession } from "next-auth"
 import GitHubProvider, { GithubEmail } from "next-auth/providers/github"
 import { Provider } from "next-auth/providers/index"
 
+export type ServerSession = (Session & { token: string; login: string }) | null
+
 const providers: Provider[] = [
   GitHubProvider({
-    clientId: process.env.GITHUB_OAUTH_CLIENT_ID!,
-    clientSecret: process.env.GITHUB_OAUTH_SECRET!,
+    clientId: getEnv("GITHUB_OAUTH_CLIENT_ID")!,
+    clientSecret: getEnv("GITHUB_OAUTH_SECRET")!,
     authorization: { params: { scope: "read:user user:email repo" } },
     httpOptions: {
       timeout: 100000,
@@ -75,12 +78,12 @@ const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/signin",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: getEnv("NEXTAUTH_SECRET"),
 }
 
 function auth( // <-- use this function to access the jwt from React components
   ...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []
-): Promise<(Session & { token: string; login: string }) | null> {
+): Promise<ServerSession> {
   return getServerSession(...args, authOptions)
 }
 
