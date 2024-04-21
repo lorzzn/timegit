@@ -1,9 +1,8 @@
-import { auth } from "@/auth"
 import { assign } from "lodash"
 
 const ghapiBaseUrl = "https://api.github.com"
 
-export const ghapi = async (url: string, options?: RequestInit, withAuth: boolean = true) => {
+export const ghapi = async (url: string, token?: string, options?: RequestInit, withAuth: boolean = true) => {
   try {
     if (!options) {
       options = {}
@@ -16,9 +15,8 @@ export const ghapi = async (url: string, options?: RequestInit, withAuth: boolea
       Accept: "application/vnd.github.v3+json",
     })
     if (withAuth) {
-      const session = await auth()
       assign(options.headers, {
-        Authorization: `token ${session?.token}`,
+        Authorization: `token ${token}`,
       })
     }
     return fetch(ghapiBaseUrl + url, options)

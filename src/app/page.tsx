@@ -1,11 +1,11 @@
 import { ServerSession, auth } from "@/auth"
-import { getEnv } from "@/utils/env"
+import { getEnvValue } from "@/utils/env"
 import { ghapi } from "@/utils/ghapi"
 import { redirect } from "next/navigation"
 
 const fetchRepo = async (session: ServerSession) => {
-  const repoUrl = `/repos/${session?.login}/${getEnv("TIMEGIT_REPO")}`
-  const res = await ghapi(repoUrl)
+  const repoUrl = `/repos/${session?.login}/${getEnvValue("GITHUB_REPOSITORY_NAME")}`
+  const res = await ghapi(repoUrl, session?.token)
 
   if (res.status === 404) {
     redirect("/setup")
