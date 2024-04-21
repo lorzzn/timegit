@@ -1,19 +1,17 @@
-import { z } from "zod"
-import { procedure, router } from ".."
+import { auth } from "@/auth"
+import { createCallerFactory, router } from ".."
+import { gh } from "./gh"
 
 export const appRouter = router({
-  hello: procedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      }
-    }),
+  gh,
 })
 
 // export type definition of API
 export type AppRouter = typeof appRouter
+
+const createCaller = createCallerFactory(appRouter)
+export const caller = createCaller(async () => {
+  return {
+    session: await auth(),
+  }
+})

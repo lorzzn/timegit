@@ -1,8 +1,9 @@
 "use client"
 
-import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Snippet } from "@nextui-org/react"
+import TCard from "@/components/TCard"
+import { trpc } from "@/trpc/client"
+import { Button, Divider, Snippet } from "@nextui-org/react"
 import { RiGithubFill } from "@remixicon/react"
-import { useSession } from "next-auth/react"
 
 type SetupProps = {
   repoName?: string
@@ -10,20 +11,21 @@ type SetupProps = {
 }
 
 const Setup = (props: SetupProps) => {
-  const session = useSession()
+  const mutation = trpc.gh.createUserRepo.useMutation()
 
   const onConfirm = async () => {
-    const repoUrl = ""
+    if (props.repoName) {
+      mutation.mutate({
+        repoName: props.repoName,
+        private: props.repoPrivate === "true",
+      })
+    }
   }
 
   return (
     <div className="flex-1 flex justify-center items-center">
-      <Card className="p-4">
-        <CardHeader className="flex items-center justify-center">
-          <h1 className="text-xl font-bold mr-2">Setup your app in one step</h1>
-        </CardHeader>
-
-        <CardBody>
+      <TCard header="Setup your app in one step" footer={mutation.error?.message} footerIsError>
+        <div className="flex flex-col justify-between">
           <div className="flex flex-col justify-center items-center">
             <RiGithubFill size={"5rem"} />
             <Divider className="my-5" />
@@ -43,14 +45,13 @@ const Setup = (props: SetupProps) => {
               )}
             </ul>
           </div>
-        </CardBody>
-
-        <CardFooter>
-          <Button color="primary" className="flex-1" size="lg" onClick={onConfirm}>
-            Confirm
-          </Button>
-        </CardFooter>
-      </Card>
+          <div className="flex mt-10">
+            <Button color="primary" className="flex-1" size="lg" onClick={onConfirm} isLoading={mutation.isPending}>
+              Confirm
+            </Button>
+          </div>
+        </div>
+      </TCard>
     </div>
   )
 }
