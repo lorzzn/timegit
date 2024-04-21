@@ -1,17 +1,18 @@
-"use client"
-
-import { providerMap } from "@/auth"
+import { auth } from "@/auth"
+import AuthProviderButton from "@/components/AuthProviderButton"
 import Logo from "@/components/Logo"
-import { Button, Card, CardBody, CardHeader } from "@nextui-org/react"
-import { RiGithubFill } from "@remixicon/react"
-import { signIn, useSession } from "next-auth/react"
+import { Card, CardBody, CardHeader } from "@nextui-org/react"
+import { getProviders } from "next-auth/react"
+import { redirect } from "next/navigation"
 
-export default function Signin() {
-  const session = useSession()
+export default async function Signin() {
+  const session = await auth()
 
-  if (session.status === "authenticated") {
-    window.location.href = "/"
+  if (!!session) {
+    redirect("/")
   }
+
+  const providers = await getProviders()
 
   return (
     <div className="flex-1 flex items-center justify-center">
@@ -21,12 +22,8 @@ export default function Signin() {
           <Logo />
         </CardHeader>
         <CardBody>
-          {Object.values(providerMap).map((provider) => (
-            <Button key={provider.id} size="lg" onClick={() => signIn(provider.id, { callbackUrl: "/" })}>
-              {provider.id === "github" && <RiGithubFill />}
-              <span>Continue with {provider.name}</span>
-            </Button>
-          ))}
+          {providers &&
+            Object.values(providers).map((provider) => <AuthProviderButton provider={provider} key={provider.id} />)}
         </CardBody>
       </Card>
     </div>
