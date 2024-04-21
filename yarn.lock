@@ -2047,6 +2047,11 @@
     "@react-types/overlays" "^3.8.5"
     "@react-types/shared" "^3.22.1"
 
+"@remixicon/react@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@remixicon/react/-/react-4.2.0.tgz#9093ea394e288ee9a88d0613bd38739c728f02ac"
+  integrity sha512-eGhKpZ88OU0qkcY9pJu6khBmItDV82nU130E6C68yc+FbljueHlUYy/4CrJsmf860RIDMay2Rpzl27OSJ81miw==
+
 "@rushstack/eslint-patch@^1.3.3":
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.2.tgz#053f1540703faa81dea2966b768ee5581c66aeda"
@@ -2079,6 +2084,38 @@
   integrity sha512-CU+RF9FySljn7HVSkkjiB84hWkvTaI3rtLvF433+jRSBL2hMu3zX5bGhHS8C80SM++h4xy8hBSnUHFQHmRXSBw==
   dependencies:
     tslib "^2.4.0"
+
+"@tanstack/query-core@5.29.0":
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.29.0.tgz#d0b3d12c07d5a47f42ab0c1ed4f317106f3d4b20"
+  integrity sha512-WgPTRs58hm9CMzEr5jpISe8HXa3qKQ8CxewdYZeVnA54JrPY9B1CZiwsCoLpLkf0dGRZq+LcX5OiJb0bEsOFww==
+
+"@tanstack/react-query@^5.29.2":
+  version "5.29.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.29.2.tgz#c55ffbfaf9d8cf34212428db2b6c61ca6b545188"
+  integrity sha512-nyuWILR4u7H5moLGSiifLh8kIqQDLNOHGuSz0rcp+J75fNc8aQLyr5+I2JCHU3n+nJrTTW1ssgAD8HiKD7IFBQ==
+  dependencies:
+    "@tanstack/query-core" "5.29.0"
+
+"@trpc/client@^11.0.0-rc.346":
+  version "11.0.0-rc.346"
+  resolved "https://registry.yarnpkg.com/@trpc/client/-/client-11.0.0-rc.346.tgz#a2a146c6a2ec26ab0dd8fb900e5773f2b912cc95"
+  integrity sha512-AU393h4TCrRjsTEP780/EpYSXo+IZAlxconhsKJY0Sq1ndcpoGGikg0xCycKJT9oud6ogXKH5DnWKrSGV9rcMA==
+
+"@trpc/next@^11.0.0-rc.346":
+  version "11.0.0-rc.346"
+  resolved "https://registry.yarnpkg.com/@trpc/next/-/next-11.0.0-rc.346.tgz#f7f5baf902db3724e07db48e6d7b548cf1b67d28"
+  integrity sha512-/Ozilbdf08kRA1HBU3dBrnRzfpLZ16MR3xxwx+u6ehEUcBVScbIy7eyNpLVLPJ6C4YgAvkEQlwo1FR66rxdMmQ==
+
+"@trpc/react-query@^11.0.0-rc.346":
+  version "11.0.0-rc.346"
+  resolved "https://registry.yarnpkg.com/@trpc/react-query/-/react-query-11.0.0-rc.346.tgz#0ac796a6cf8d994be19766756116b54986494545"
+  integrity sha512-UmevVlIxRnZdl3KO//8RkFTGpFFf2ePdlSLi3iZwj2glefPTM4KjnJ0o0BJ1oNn7OXkZHSvYUT0klInJe07I3A==
+
+"@trpc/server@^11.0.0-rc.346":
+  version "11.0.0-rc.346"
+  resolved "https://registry.yarnpkg.com/@trpc/server/-/server-11.0.0-rc.346.tgz#422032cd5d82d0f94823e2ca657e74bb43c67d9f"
+  integrity sha512-f3J7lZqMgh6hMmsiiFoOYy07y+3FTuu1oGuuEiB+sCBPCJBCxZLGWI8zzVC4V8P0fNcD6aPKQFU51KZtWW6ZtA==
 
 "@types/json5@^0.0.29":
   version "0.0.29"
@@ -2384,6 +2421,14 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+beautiful-react-hooks@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/beautiful-react-hooks/-/beautiful-react-hooks-5.0.1.tgz#ab520ff9af8825e1b8b821b741e4fb4f790593de"
+  integrity sha512-e312biTl93oqHdUjWe8C09CHY0sTZGe8uSoTA2PSCg2xXhKJWGPGjt63MP8suzujQTOyiSihgDR4jnATscbagQ==
+  dependencies:
+    lodash.debounce "^4.0.8"
+    lodash.throttle "^4.1.1"
 
 binary-extensions@^2.0.0:
   version "2.3.0"
@@ -3861,6 +3906,11 @@ lodash.omit@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.omit/-/lodash.omit-4.5.0.tgz#6eb19ae5a1ee1dd9df0b969e66ce0b7fa30b5e60"
   integrity sha512-XeqSp49hNGmlkj2EJlfrQFIzQ6lXdNro9sddtQzcJY8QaoC2GO0DT7xaIokHeyM+mIT0mPMlPvkYzg2xCuHdZg==
 
+lodash.throttle@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
+  integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
+
 log-update@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/log-update/-/log-update-6.0.0.tgz#0ddeb7ac6ad658c944c1de902993fce7c33f5e59"
@@ -5143,6 +5193,11 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zod@^3.22.5:
+  version "3.22.5"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.5.tgz#b9b09db03f6700b0d0b75bf0dbf0c5fc46155220"
+  integrity sha512-HqnGsCdVZ2xc0qWPLdO25WnseXThh0kEYKIdV5F/hTHO75hNZFp8thxSeHhiPrHZKrFTo1SOgkAj9po5bexZlw==
 
 zustand@^4.5.2:
   version "4.5.2"
