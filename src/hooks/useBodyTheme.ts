@@ -17,7 +17,7 @@ const useBodyTheme = () => {
     if (theme) {
       // set page theme
       _setTheme(theme)
-      document.body.setAttribute("data-theme", theme)
+      document.documentElement.setAttribute("data-theme", theme)
       // save theme to localstorage
       setStorageThemeValue(theme)
     }

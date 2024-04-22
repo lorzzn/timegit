@@ -1,9 +1,13 @@
 import { auth } from "@/auth"
 import { createCallerFactory, router } from ".."
-import { gh } from "./gh"
+import { activity } from "./activity"
+import { day } from "./day"
+import { gh } from "./repo"
 
 export const appRouter = router({
   gh,
+  activity,
+  day,
 })
 
 // export type definition of API

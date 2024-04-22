@@ -23,7 +23,9 @@ const Header = () => {
 
   return (
     <header
-      className={twclx(["w-full flex justify-between items-center h-12 bg-foreground-100 px-6 sm:px-12 backdrop-blur"])}
+      className={twclx([
+        "w-full flex justify-between items-center h-12 bg-foreground-100 px-6 sm:px-12 backdrop-blur sticky top-0",
+      ])}
     >
       <Link className={twclx(["mr-24"])} href="/">
         <Logo />

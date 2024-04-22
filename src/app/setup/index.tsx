@@ -11,7 +11,7 @@ type SetupProps = {
 }
 
 const Setup = (props: SetupProps) => {
-  const mutation = trpc.gh.createUserRepo.useMutation()
+  const mutation = trpc.gh.create.useMutation()
 
   const onConfirm = async () => {
     if (props.repoName) {

@@ -13,12 +13,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html>
-      <body suppressHydrationWarning>
+    <html suppressHydrationWarning>
+      <body>
         <script
           dangerouslySetInnerHTML={{
             __html:
-              'var t;try{var l=localStorage.getItem("theme");t=JSON.parse(l)}catch(e){t="light"}document.body.setAttribute("data-theme", t);',
+              'var t;try{var l=localStorage.getItem("theme");t=JSON.parse(l)}catch(e){t="light"}document.documentElement.setAttribute("data-theme", t);',
           }}
         />
         <Layout>{children}</Layout>
