@@ -13,13 +13,13 @@ import {
   Spinner,
   useDisclosure,
 } from "@nextui-org/react"
-import { RiAddFill } from "@remixicon/react"
+import { RiAddFill, RiArrowLeftLine, RiRefreshLine } from "@remixicon/react"
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import { Else, If, Then, When } from "react-if"
 import ActivityTypeCard from "../ActivityTypeCard"
 
 export type ActivityTypePickerProps = {
-  onConfirm?: (activityType: ActivityTypeModel) => void
+  onConfirm?: (activityType?: ActivityTypeModel | null) => void
 }
 
 export type ActivityTypePickerRef = {
@@ -30,15 +30,32 @@ export type ActivityTypePickerRef = {
 export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityTypePickerProps>(({ onConfirm }, ref) => {
   const widthClass = useLayoutStore((s) => s.widthClass)
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose: _onclose } = useDisclosure()
+  const { isOpen: actionIsOpen, onOpen: actionOnOpen, onClose: actionOnClose } = useDisclosure()
+
+  const createMutation = trpc.activityTypes.create.useMutation()
+  const updateMutation = trpc.activityTypes.update.useMutation()
+  const deleteMutation = trpc.activityTypes.delete.useMutation()
+
+  const resetModal = () => {
+    setCurrentlyActivityType(null)
+    setEditingActivityType(null)
+    setIsEditing(false)
+  }
+
+  const onClose = () => {
+    _onclose()
+    actionOnClose()
+    resetModal()
+  }
+
   const { repo } = useLayoutContext()
   const repoId = repo?.id || 0
 
-  const [selectedActivityType, setSelectedActivityType] = useState<ActivityTypeModel | null>()
+  const [currentlyActivityType, setCurrentlyActivityType] = useState<ActivityTypeModel | null>()
+  const [editingActivityType, setEditingActivityType] = useState<ActivityTypeModel | null>()
 
-  const [isCurrentlyCreating, setIsCurrentlyCreating] = useState(false)
-
-  const createMutation = trpc.activityTypes.create.useMutation()
+  const [isEditing, setIsEditing] = useState(false)
 
   const activityTypes = trpc.activityTypes.list.useQuery(
     {
@@ -55,30 +72,38 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   const isFetching = activityTypes.isFetching
 
   useEffect(() => {
-    setIsCurrentlyCreating(false)
+    resetModal()
   }, [isFetching])
 
-  const onConfirmButtonPress = () => {
-    if (selectedActivityType) {
-      onConfirm?.(selectedActivityType)
-    }
-    onClose()
-  }
-
   const onCreateButtonPress = () => {
-    setSelectedActivityType(new ActivityTypeModel({}))
-    setIsCurrentlyCreating(true)
+    setCurrentlyActivityType(new ActivityTypeModel({}))
+    setIsEditing(true)
   }
 
-  const onActivityTypeDeleted = () => {
-    setSelectedActivityType(null)
-    setIsCurrentlyCreating(false)
+  const onActivityTypeDelete = async () => {
+    if (!currentlyActivityType?.name) return
+
+    await deleteMutation.mutateAsync({
+      name: currentlyActivityType.name,
+    })
+    setTimeout(() => {
+      activityTypes.refetch()
+    }, 1000)
   }
 
   const onActivityTypeSave = async (value: ActivityTypeModel) => {
-    await createMutation.mutateAsync(value.toObject())
-    setIsCurrentlyCreating(false)
-    activityTypes.refetch()
+    if (!value.id) {
+      await createMutation.mutateAsync(value.toObject())
+    } else {
+      if (!editingActivityType) return
+      await updateMutation.mutateAsync({
+        ...editingActivityType.toObject(),
+        new_name: value.name,
+      })
+    }
+    setTimeout(() => {
+      activityTypes.refetch()
+    }, 1000)
   }
 
   useImperativeHandle(ref, () => ({
@@ -86,9 +111,20 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
     onClose,
   }))
 
+  const onSelectActionButtonPress = () => {
+    onConfirm?.(currentlyActivityType)
+    resetModal()
+    onClose()
+  }
+
+  const onEditActionButtonPress = () => {
+    setIsEditing(true)
+    actionOnClose()
+  }
+
   return (
     <>
-      <ActivityTypeCard activityType={selectedActivityType} onPress={onOpen} />
+      <ActivityTypeCard activityType={currentlyActivityType} onPress={onOpen} />
 
       <Modal size="full" isOpen={isOpen} onClose={onClose}>
         <ModalContent>
@@ -111,9 +147,14 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
                       <ActivityTypeCard
                         key={activityType.id}
                         activityType={t}
-                        onPress={() => setSelectedActivityType(t)}
-                        onDelete={onActivityTypeDeleted}
-                        onChange={(value) => setSelectedActivityType(value)}
+                        editing={isEditing && activityType.id === currentlyActivityType?.id}
+                        onPress={() => {
+                          setEditingActivityType(t)
+                          setCurrentlyActivityType(t)
+                          actionOnOpen()
+                        }}
+                        onDelete={onActivityTypeDelete}
+                        onChange={(value) => setCurrentlyActivityType(value)}
                         onSave={(value) => onActivityTypeSave(value)}
                       />
                     )
@@ -121,15 +162,15 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
                 </div>
               </When>
 
-              {/* when creating, show the card for editing */}
-              <If condition={isCurrentlyCreating}>
+              {/* here is creat at., show the card for editing */}
+              <If condition={isEditing && !currentlyActivityType?.id}>
                 <Then>
                   <div className="my-3">
                     <ActivityTypeCard
                       editing
-                      activityType={selectedActivityType}
-                      onDelete={onActivityTypeDeleted}
-                      onChange={(value) => setSelectedActivityType(value)}
+                      activityType={currentlyActivityType}
+                      onDelete={onActivityTypeDelete}
+                      onChange={(value) => setCurrentlyActivityType(value)}
                       onSave={(value) => onActivityTypeSave(value)}
                     />
                   </div>
@@ -155,14 +196,37 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
             </div>
           </ModalBody>
 
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={onClose}>
-              Cancel
+          <ModalFooter className="justify-start">
+            <Button color="default" variant="light" onPress={() => onClose()}>
+              <RiArrowLeftLine />
+              <span>Go back</span>
             </Button>
-            <Button color="primary" onPress={() => onConfirmButtonPress()}>
-              Confirm
+            <Button
+              color="default"
+              variant="light"
+              onPress={() => {
+                activityTypes.refetch()
+              }}
+            >
+              <RiRefreshLine />
+              <span>Refresh</span>
             </Button>
           </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal size="sm" isOpen={actionIsOpen} onClose={actionOnClose}>
+        <ModalContent>
+          <ModalHeader>Select action</ModalHeader>
+          <ModalBody>
+            <Button color="primary" size="lg" onPress={onSelectActionButtonPress}>
+              Select
+            </Button>
+            <Button color="primary" size="lg" onPress={onEditActionButtonPress}>
+              Edit
+            </Button>
+          </ModalBody>
+          <ModalFooter />
         </ModalContent>
       </Modal>
     </>

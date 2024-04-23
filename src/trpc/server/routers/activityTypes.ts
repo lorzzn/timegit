@@ -48,7 +48,14 @@ export const activityTypes = router({
       return data
     }),
   update: procedure
-    .input(z.object({ name: z.string(), color: z.string(), new_name: z.string(), description: z.string() }))
+    .input(
+      z.object({
+        name: z.string(),
+        color: z.string().optional(),
+        new_name: z.string(),
+        description: z.string().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session
       const activity = new ActivityType(input)
