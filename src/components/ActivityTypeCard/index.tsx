@@ -13,6 +13,7 @@ type ActivityTypeCardProps = {
   onSave?: (activityType: ActivityType) => void
   onDelete?: () => void
   disabledDelete?: boolean
+  emptyText?: string
 }
 
 const ActivityTypeCard = ({
@@ -22,6 +23,7 @@ const ActivityTypeCard = ({
   onSave,
   onDelete,
   disabledDelete,
+  emptyText = "No activity type has been specified",
 }: ActivityTypeCardProps) => {
   const [activityType, setActivityType] = useState<ActivityType | null | undefined>(propActivityType)
 
@@ -111,9 +113,7 @@ const ActivityTypeCard = ({
 
         {!activityType && (
           <CardBody className="flex justify-center items-center">
-            <span className="flex-1 flex items-center justify-center text-foreground-400">
-              {"This activity hasn't been specified with a type, click me to add."}
-            </span>
+            <span className="flex-1 flex items-center justify-center text-foreground-400">{emptyText}</span>
           </CardBody>
         )}
       </Card>
