@@ -7,6 +7,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Skeleton
 import { RiMoonFill, RiSunFill } from "@remixicon/react"
 import { signIn, signOut, useSession } from "next-auth/react"
 import Link from "next/link"
+import { Else, If, Then } from "react-if"
 
 const Header = () => {
   const { theme, setTheme } = useBodyTheme()
@@ -24,7 +25,7 @@ const Header = () => {
   return (
     <header
       className={twclx([
-        "w-full flex justify-between items-center h-12 bg-foreground-50 px-6 sm:px-12 backdrop-blur sticky top-0 shadow z-[500]",
+        "w-full flex justify-between items-center h-12 bg-foreground-50 px-6 sm:px-12 backdrop-blur sticky top-0 shadow z-40",
       ])}
     >
       <Link className={twclx(["mr-24"])} href="/">
@@ -40,41 +41,43 @@ const Header = () => {
         </Skeleton>
 
         <Skeleton isLoaded={session.status !== "loading"} className="rounded">
-          {!authed && (
-            <Button
-              onClick={() => signIn()}
-              radius="sm"
-              size="sm"
-              variant="bordered"
-              color="primary"
-              className="font-semibold"
-            >
-              Sign in
-            </Button>
-          )}
+          <If condition={!!authed}>
+            <Then>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button variant="light" className="px-3">
+                    <User
+                      name={session.data?.user?.name}
+                      description={session.data?.user?.email}
+                      avatarProps={{
+                        size: "sm",
+                        src: session.data?.user?.image || undefined,
+                      }}
+                    />
+                  </Button>
+                </DropdownTrigger>
 
-          {authed && (
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="light" className="px-3">
-                  <User
-                    name={session.data.user?.name}
-                    description={session.data.user?.email}
-                    avatarProps={{
-                      size: "sm",
-                      src: session.data.user?.image || undefined,
-                    }}
-                  />
-                </Button>
-              </DropdownTrigger>
+                <DropdownMenu aria-label="user menu">
+                  <DropdownItem textValue="sign out" onClick={() => signOut()}>
+                    <span>sign out</span>
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </Then>
 
-              <DropdownMenu aria-label="user menu">
-                <DropdownItem textValue="sign out" onClick={() => signOut()}>
-                  <span>sign out</span>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          )}
+            <Else>
+              <Button
+                onClick={() => signIn()}
+                radius="sm"
+                size="sm"
+                variant="bordered"
+                color="primary"
+                className="font-semibold"
+              >
+                Sign in
+              </Button>
+            </Else>
+          </If>
         </Skeleton>
       </div>
     </header>

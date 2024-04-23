@@ -59,7 +59,7 @@ class UserActivity {
   toIssueObject(): Endpoints["POST /repos/{owner}/{repo}/issues"]["request"]["data"] {
     return {
       title: randomString(8, "Timegit | "),
-      labels: compact(["timegit", UserActivity.dateToLabelValue(this.date), this.activity?.labelValue]),
+      labels: compact(["timegit", UserActivity.dateToLabelValue(this.date), this.activity?.name]),
       body: dump({
         start: this.start.format("YYYY-MM-DD HH:mm:ss"),
         end: this.end.format("YYYY-MM-DD HH:mm:ss"),

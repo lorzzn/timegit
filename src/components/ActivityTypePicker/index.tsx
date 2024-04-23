@@ -1,6 +1,8 @@
 import { useLayoutContext } from "@/layout/context"
 import ActivityTypeModel from "@/models/activityType"
+import useLayoutStore from "@/stores/layout"
 import { trpc } from "@/trpc/client"
+import { twclx } from "@/utils/twclx"
 import {
   Button,
   Modal,
@@ -13,6 +15,7 @@ import {
 } from "@nextui-org/react"
 import { RiAddFill } from "@remixicon/react"
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
+import { Else, If, Then, When } from "react-if"
 import ActivityTypeCard from "../ActivityTypeCard"
 
 export type ActivityTypePickerProps = {
@@ -25,20 +28,24 @@ export type ActivityTypePickerRef = {
 }
 
 export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityTypePickerProps>(({ onConfirm }, ref) => {
+  const widthClass = useLayoutStore((s) => s.widthClass)
+
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { repo } = useLayoutContext()
-  const [selectedActivityType, setSelectedActivityType] = useState<ActivityTypeModel>()
+  const repoId = repo?.id || 0
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [selectedActivityType, setSelectedActivityType] = useState<ActivityTypeModel | null>()
+
+  const [isCurrentlyCreating, setIsCurrentlyCreating] = useState(false)
 
   const createMutation = trpc.activityTypes.create.useMutation()
 
   const activityTypes = trpc.activityTypes.list.useQuery(
     {
-      repository_id: repo?.id,
+      repository_id: repoId,
     },
     {
-      enabled: isOpen,
+      enabled: !!repoId && isOpen,
       refetchOnWindowFocus: false,
     },
   )
@@ -48,7 +55,7 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   const isFetching = activityTypes.isFetching
 
   useEffect(() => {
-    setIsEditing(false)
+    setIsCurrentlyCreating(false)
   }, [isFetching])
 
   const onConfirmButtonPress = () => {
@@ -59,22 +66,19 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   }
 
   const onCreateButtonPress = () => {
-    setIsEditing(true)
+    setSelectedActivityType(new ActivityTypeModel({}))
+    setIsCurrentlyCreating(true)
   }
 
   const onActivityTypeDeleted = () => {
-    setIsEditing(false)
+    setSelectedActivityType(null)
+    setIsCurrentlyCreating(false)
   }
 
   const onActivityTypeSave = async (value: ActivityTypeModel) => {
-    try {
-      const res = await createMutation.mutateAsync(value)
-      console.log(res)
-      setIsEditing(false)
-      activityTypes.refetch()
-    } catch (error) {
-      console.log(error)
-    }
+    await createMutation.mutateAsync(value.toObject())
+    setIsCurrentlyCreating(false)
+    activityTypes.refetch()
   }
 
   useImperativeHandle(ref, () => ({
@@ -85,32 +89,70 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   return (
     <>
       <ActivityTypeCard activityType={selectedActivityType} onPress={onOpen} />
+
       <Modal size="full" isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalHeader>Active Manager</ModalHeader>
+          <ModalHeader>Select an activity type</ModalHeader>
 
-          <ModalBody className="min-h-36 flex flex-col relative">
-            {isEditing && (
-              <ActivityTypeCard
-                activityType={new ActivityTypeModel({ name: "" })}
-                editing
-                onDelete={onActivityTypeDeleted}
-                onSave={(value) => onActivityTypeSave(value)}
-              />
-            )}
+          <ModalBody className={twclx(["min-h-36 flex flex-col relative items-center"])}>
+            <div className={twclx([widthClass])}>
+              {/* activities list */}
+              <When condition={!isEmpty}>
+                <div className="flex flex-col space-y-3">
+                  {activityTypes.data?.items.map((activityType) => {
+                    const t = new ActivityTypeModel({
+                      name: activityType.name,
+                      id: activityType.id,
+                      color: activityType.color,
+                      description: activityType.description || undefined,
+                    })
 
-            <div className="flex-1 flex flex-col items-center text-foreground-400">
-              {!isEditing && (
-                <Button variant="bordered" size="lg" className="w-full !py-10" onPress={onCreateButtonPress}>
-                  <RiAddFill />
-                  <span>Create an activity type</span>
-                </Button>
-              )}
-              {isEmpty && <span className="flex-1 flex items-center justify-center">No activities found.</span>}
+                    return (
+                      <ActivityTypeCard
+                        key={activityType.id}
+                        activityType={t}
+                        onPress={() => setSelectedActivityType(t)}
+                        onDelete={onActivityTypeDeleted}
+                        onChange={(value) => setSelectedActivityType(value)}
+                        onSave={(value) => onActivityTypeSave(value)}
+                      />
+                    )
+                  })}
+                </div>
+              </When>
+
+              {/* when creating, show the card for editing */}
+              <If condition={isCurrentlyCreating}>
+                <Then>
+                  <div className="my-3">
+                    <ActivityTypeCard
+                      editing
+                      activityType={selectedActivityType}
+                      onDelete={onActivityTypeDeleted}
+                      onChange={(value) => setSelectedActivityType(value)}
+                      onSave={(value) => onActivityTypeSave(value)}
+                    />
+                  </div>
+                </Then>
+                <Else>
+                  <Button variant="bordered" size="lg" className="w-full !py-10 !my-3" onPress={onCreateButtonPress}>
+                    <RiAddFill />
+                    <span>Create an activity type</span>
+                  </Button>
+                </Else>
+              </If>
+
+              <When condition={isEmpty}>
+                <div className="flex-1 flex flex-col items-center text-foreground-400">
+                  <span className="flex-1 flex items-center justify-center">No activities found.</span>
+                </div>
+              </When>
+
+              {/* put loading at the end */}
+              <When condition={isFetching || createMutation.isPending}>
+                <Spinner size="lg" className="absolute inset-0 bg-background z-50" />
+              </When>
             </div>
-
-            {/* put loading at the end */}
-            {isFetching && <Spinner size="lg" className="absolute inset-0 bg-background" />}
           </ModalBody>
 
           <ModalFooter>

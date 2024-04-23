@@ -9,13 +9,10 @@ export const activityTypes = router({
   list: procedure
     .input(
       z.object({
-        repository_id: z.number().optional(),
+        repository_id: z.number(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      if (!input.repository_id) {
-        return null
-      }
       const session = ctx.session
 
       const query = buildQuery({
@@ -36,8 +33,8 @@ export const activityTypes = router({
       const activity = new ActivityType(input)
 
       const body: Endpoints["POST /repos/{owner}/{repo}/labels"]["request"]["data"] = {
-        name: activity.labelValue,
-        color: activity.color,
+        name: activity.name,
+        color: activity.withoutLeadingColor,
         description: activity.description,
       }
 
@@ -61,12 +58,12 @@ export const activityTypes = router({
         "name" | "repo" | "owner"
       > = {
         new_name: input.new_name,
-        color: activity.color,
+        color: activity.color.toHex(),
         description: activity.description,
       }
 
       const response = await ghapi(
-        `/repos/${getUserTimegitRepoPath(session)}/labels/${activity.labelValue}`,
+        `/repos/${getUserTimegitRepoPath(session)}/labels/${activity.name}`,
         session?.token,
         {
           method: "PATCH",
@@ -82,13 +79,9 @@ export const activityTypes = router({
     const session = ctx.session
     const activity = new ActivityType(input)
 
-    const response = await ghapi(
-      `/repos/${getUserTimegitRepoPath(session)}/labels/${activity.labelValue}`,
-      session?.token,
-      {
-        method: "DELETE",
-      },
-    )
+    const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/labels/${activity.name}`, session?.token, {
+      method: "DELETE",
+    })
     await validateGhapiResponse(response)
     const data = (await response.json()) as Endpoints["DELETE /repos/{owner}/{repo}/labels/{name}"]["response"]["data"]
 
