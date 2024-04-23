@@ -1,11 +1,11 @@
-import Activity from "@/models/activity"
+import ActivityType from "@/models/activityType"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
 import { buildQuery } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
 import { z } from "zod"
 import { procedure, router } from ".."
 
-export const activities = router({
+export const activityTypes = router({
   list: procedure
     .input(
       z.object({
@@ -20,7 +20,7 @@ export const activities = router({
 
       const query = buildQuery({
         repository_id: input.repository_id,
-        q: Activity.labelMark,
+        q: ActivityType.labelMark,
       })
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
@@ -33,7 +33,7 @@ export const activities = router({
     .input(z.object({ name: z.string(), color: z.string(), description: z.string().max(100) }))
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session
-      const activity = new Activity(input)
+      const activity = new ActivityType(input)
 
       const body: Endpoints["POST /repos/{owner}/{repo}/labels"]["request"]["data"] = {
         name: activity.value,
@@ -54,7 +54,7 @@ export const activities = router({
     .input(z.object({ name: z.string(), color: z.string(), new_name: z.string(), description: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session
-      const activity = new Activity(input)
+      const activity = new ActivityType(input)
 
       const body: Omit<
         Endpoints["PATCH /repos/{owner}/{repo}/labels/{name}"]["parameters"],
@@ -80,7 +80,7 @@ export const activities = router({
     }),
   delete: procedure.input(z.object({ name: z.string() })).mutation(async ({ ctx, input }) => {
     const session = ctx.session
-    const activity = new Activity(input)
+    const activity = new ActivityType(input)
 
     const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/labels/${activity.value}`, session?.token, {
       method: "DELETE",

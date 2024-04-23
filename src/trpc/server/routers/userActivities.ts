@@ -1,4 +1,4 @@
-import Activity from "@/models/activity"
+import ActivityType from "@/models/activityType"
 import UserActivity from "@/models/userActivity"
 import { dayjsZodUtil } from "@/utils/date"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
@@ -34,7 +34,7 @@ export const userActivities = router({
     .input(
       z.object({
         date: dayjsZodUtil,
-        activity: Activity.zodUtil.nullable(),
+        activity: ActivityType.zodUtil.nullable(),
         start: dayjsZodUtil,
         end: dayjsZodUtil,
       }),
@@ -60,7 +60,7 @@ export const userActivities = router({
       z.object({
         id: z.number(),
         date: dayjsZodUtil,
-        activity: Activity.zodUtil.nullable(),
+        activity: ActivityType.zodUtil.nullable(),
         start: dayjsZodUtil,
         end: dayjsZodUtil,
       }),

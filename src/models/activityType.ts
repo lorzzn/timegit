@@ -1,21 +1,20 @@
 import { z } from "zod"
 
-export type ActivityProps = {
+export type ActivityTypeProps = {
   name: string
   color?: string
   description?: string
 }
 
-class Activity {
+class ActivityType {
   static labelMark: string = "#activity:"
+  static zodUtil = z.custom<ActivityType>((val) => val instanceof ActivityType, "Invalid activity")
 
-  static zodUtil = z.custom<Activity>((val) => val instanceof Activity, "Invalid activity")
+  name: ActivityTypeProps["name"]
+  color?: ActivityTypeProps["color"]
+  description?: ActivityTypeProps["description"]
 
-  name: ActivityProps["name"]
-  color?: ActivityProps["color"]
-  description?: ActivityProps["description"]
-
-  constructor(props: ActivityProps) {
+  constructor(props: ActivityTypeProps) {
     this.validateProps(props)
     const { name, color, description } = props
 
@@ -24,7 +23,7 @@ class Activity {
     this.description = description
   }
 
-  private validateProps(props: ActivityProps) {
+  private validateProps(props: ActivityTypeProps) {
     const { description } = props
     if (description && description.length > 100) {
       throw new Error("Label description is too long")
@@ -35,9 +34,9 @@ class Activity {
     return `#label:${this.name}`
   }
 
-  update(props: Partial<ActivityProps>) {
-    return new Activity({ ...this, ...props })
+  update(props: Partial<ActivityTypeProps>) {
+    return new ActivityType({ ...this, ...props })
   }
 }
 
-export default Activity
+export default ActivityType

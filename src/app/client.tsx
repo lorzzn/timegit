@@ -2,7 +2,7 @@
 
 import { useLayoutContext } from "@/layout/context"
 import { trpc } from "@/trpc/client"
-import { calendarDateToDayjs, dayjsToCalendarDate } from "@/utils/date"
+import { DayDate, daydate } from "@/utils/daydate"
 import {
   Button,
   Calendar,
@@ -18,16 +18,15 @@ import {
   useDisclosure,
 } from "@nextui-org/react"
 import { RiAddFill } from "@remixicon/react"
-import dayjs from "dayjs"
 import { useState } from "react"
 
 const App = () => {
   const { serverDate } = useLayoutContext()
+  const today = daydate(serverDate)
+  const [date, setDate] = useState(daydate(serverDate))
+  const [calendarDate, setCalendarDate] = useState(date.toCalendarDate())
 
-  const today = dayjs(serverDate)
-  const [date, setDate] = useState(dayjs(serverDate))
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [calendarDate, setCalendarDate] = useState(dayjsToCalendarDate(date))
 
   const userActivities = trpc.userActivities.list.useQuery({
     date,
@@ -35,7 +34,7 @@ const App = () => {
   const mut = trpc.userActivities.create.useMutation()
 
   const showCalendarModal = () => {
-    setCalendarDate(dayjsToCalendarDate(date))
+    setCalendarDate(date.toCalendarDate())
     onOpen()
   }
 
@@ -44,7 +43,7 @@ const App = () => {
   }
 
   const onCalenderDateConfirm = () => {
-    setDate(calendarDateToDayjs(calendarDate))
+    setDate(DayDate.fromCalendarDate(calendarDate))
     onClose()
   }
 
@@ -79,7 +78,7 @@ const App = () => {
             <Calendar
               aria-label="Calendar"
               className="shadow-none"
-              maxValue={dayjsToCalendarDate(today)}
+              maxValue={today.toCalendarDate()}
               defaultValue={calendarDate}
               value={calendarDate}
               onChange={onCalenderDateChange}

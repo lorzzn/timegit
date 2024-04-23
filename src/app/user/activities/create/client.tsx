@@ -1,6 +1,6 @@
 "use client"
 
-import ActivityPicker from "@/components/ActivityPicker"
+import ActivityTypePicker from "@/components/ActivityTypePicker"
 import { useLayoutContext } from "@/layout/context"
 import { daydate } from "@/utils/daydate"
 import { twclx } from "@/utils/twclx"
@@ -45,7 +45,7 @@ const Create = () => {
           <RiCloseFill />
         </Button>
       </div>
-      <ActivityPicker />
+      <ActivityTypePicker />
 
       <Divider className="my-3" />
       <div className="text-lg py-3">Activity description</div>

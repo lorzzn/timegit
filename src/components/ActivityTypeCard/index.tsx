@@ -1,4 +1,4 @@
-import Activity from "@/models/activity"
+import ActivityType from "@/models/activityType"
 import { twclx } from "@/utils/twclx"
 import { css } from "@emotion/css"
 import { Button, Card, CardBody, CardFooter, CardHeader, Input, Textarea } from "@nextui-org/react"
@@ -6,26 +6,26 @@ import { RiDeleteBin2Fill, RiSaveFill } from "@remixicon/react"
 import { useRef, useState } from "react"
 import ColorPickerModal, { ColorPickerModalRef } from "../ColorPickerModal"
 
-type ActivityCardProps = {
-  activity?: Activity | null
+type ActivityTypeCardProps = {
+  activityType?: ActivityType | null
   editing?: boolean
   onPress?: () => void
-  onSave?: (activity: Activity) => void
+  onSave?: (activityType: ActivityType) => void
   onDelete?: () => void
   disabledDelete?: boolean
 }
 
-const ActivityCard = ({
-  activity: propActivity,
+const ActivityTypeCard = ({
+  activityType: propActivityType,
   onPress,
   editing,
   onSave,
   onDelete,
   disabledDelete,
-}: ActivityCardProps) => {
-  const [activity, setActivity] = useState<Activity>(
-    propActivity ||
-      new Activity({
+}: ActivityTypeCardProps) => {
+  const [activityType, setActivityType] = useState<ActivityType>(
+    propActivityType ||
+      new ActivityType({
         name: "Reading",
         color: "#7cc36e",
         description: "Reading is a great way to relax and improve your mental health.",
@@ -34,9 +34,9 @@ const ActivityCard = ({
 
   const colorPickerRef = useRef<ColorPickerModalRef | null>(null)
 
-  const updateActivity = (key: keyof Activity, value: any) => {
-    setActivity(
-      activity.update({
+  const updateActivityType = (key: keyof ActivityType, value: any) => {
+    setActivityType(
+      activityType.update({
         [key]: value,
       }),
     )
@@ -46,9 +46,9 @@ const ActivityCard = ({
     <>
       <Card
         className={twclx([
-          activity.color &&
+          activityType.color &&
             css`
-              background-color: ${activity.color};
+              background-color: ${activityType.color};
             `,
         ])}
         isPressable={!editing}
@@ -59,11 +59,11 @@ const ActivityCard = ({
             <Input
               label="Name"
               required
-              value={activity.name}
-              onValueChange={(value) => updateActivity("name", value)}
+              value={activityType.name}
+              onValueChange={(value) => updateActivityType("name", value)}
             />
           ) : (
-            activity.name
+            activityType.name
           )}
         </CardHeader>
 
@@ -74,15 +74,15 @@ const ActivityCard = ({
                 <Textarea
                   label="Description"
                   maxLength={100}
-                  value={activity.description}
-                  onValueChange={(value) => updateActivity("description", value)}
+                  value={activityType.description}
+                  onValueChange={(value) => updateActivityType("description", value)}
                 />
-                {activity.description && (
-                  <span className="ml-auto text-sm mt-1 mr-1">{activity.description.length}/100</span>
+                {activityType.description && (
+                  <span className="ml-auto text-sm mt-1 mr-1">{activityType.description.length}/100</span>
                 )}
               </div>
             ) : (
-              activity.description
+              activityType.description
             )}
           </div>
         </CardBody>
@@ -105,7 +105,7 @@ const ActivityCard = ({
                 <span>Delete</span>
               </Button>
             )}
-            <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activity)}>
+            <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activityType)}>
               <RiSaveFill size={"1.1rem"} />
               <span>Save</span>
             </Button>
@@ -113,9 +113,9 @@ const ActivityCard = ({
         )}
       </Card>
 
-      <ColorPickerModal ref={colorPickerRef} onChange={(value) => updateActivity("color", value.toHexString())} />
+      <ColorPickerModal ref={colorPickerRef} onChange={(value) => updateActivityType("color", value.toHexString())} />
     </>
   )
 }
 
-export default ActivityCard
+export default ActivityTypeCard

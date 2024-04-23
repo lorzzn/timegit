@@ -3,11 +3,11 @@ import { Endpoints } from "@octokit/types"
 import dayjs, { Dayjs } from "dayjs"
 import { dump } from "js-yaml"
 import { compact } from "lodash"
-import Activity from "./activity"
+import ActivityType from "./activityType"
 
 export type UserActivityProps = {
   date: Dayjs | string | number
-  activity: Activity | null
+  activity: ActivityType | null
 
   start: Dayjs | string | number
   end: Dayjs | string | number
