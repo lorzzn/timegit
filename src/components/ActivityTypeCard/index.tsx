@@ -23,20 +23,13 @@ const ActivityTypeCard = ({
   onDelete,
   disabledDelete,
 }: ActivityTypeCardProps) => {
-  const [activityType, setActivityType] = useState<ActivityType>(
-    propActivityType ||
-      new ActivityType({
-        name: "Reading",
-        color: "#7cc36e",
-        description: "Reading is a great way to relax and improve your mental health.",
-      }),
-  )
+  const [activityType, setActivityType] = useState<ActivityType | null | undefined>(propActivityType)
 
   const colorPickerRef = useRef<ColorPickerModalRef | null>(null)
 
   const updateActivityType = (key: keyof ActivityType, value: any) => {
     setActivityType(
-      activityType.update({
+      activityType?.update({
         [key]: value,
       }),
     )
@@ -46,7 +39,7 @@ const ActivityTypeCard = ({
     <>
       <Card
         className={twclx([
-          activityType.color &&
+          activityType?.color &&
             css`
               background-color: ${activityType.color};
             `,
@@ -54,62 +47,74 @@ const ActivityTypeCard = ({
         isPressable={!editing}
         onPress={onPress}
       >
-        <CardHeader className="pb-0 text-2xl">
-          {editing ? (
-            <Input
-              label="Name"
-              required
-              value={activityType.name}
-              onValueChange={(value) => updateActivityType("name", value)}
-            />
-          ) : (
-            activityType.name
-          )}
-        </CardHeader>
-
-        <CardBody>
-          <div>
-            {editing ? (
-              <div className="flex flex-col">
-                <Textarea
-                  label="Description"
-                  maxLength={100}
-                  value={activityType.description}
-                  onValueChange={(value) => updateActivityType("description", value)}
+        {activityType && (
+          <>
+            <CardHeader className="pb-0 text-2xl">
+              {editing ? (
+                <Input
+                  label="Name"
+                  required
+                  value={activityType.name}
+                  onValueChange={(value) => updateActivityType("name", value)}
                 />
-                {activityType.description && (
-                  <span className="ml-auto text-sm mt-1 mr-1">{activityType.description.length}/100</span>
+              ) : (
+                activityType.name
+              )}
+            </CardHeader>
+
+            <CardBody>
+              <div>
+                {editing ? (
+                  <div className="flex flex-col">
+                    <Textarea
+                      label="Description"
+                      maxLength={100}
+                      value={activityType.description}
+                      onValueChange={(value) => updateActivityType("description", value)}
+                    />
+                    {activityType.description && (
+                      <span className="ml-auto text-sm mt-1 mr-1">{activityType.description.length}/100</span>
+                    )}
+                  </div>
+                ) : (
+                  activityType.description
                 )}
               </div>
-            ) : (
-              activityType.description
-            )}
-          </div>
-        </CardBody>
+            </CardBody>
 
-        {editing && (
-          <CardFooter className="flex">
-            <Button
-              className="ml-auto bg-gradient-to-tr from-[#c43646] to-[#d876e3] text-white shadow-lg"
-              size="md"
-              color="default"
-              onPress={() => {
-                colorPickerRef.current?.onOpen()
-              }}
-            >
-              Change Color
-            </Button>
-            {!disabledDelete && (
-              <Button className="ml-3" color="danger" onPress={onDelete}>
-                <RiDeleteBin2Fill size={"1.1rem"} />
-                <span>Delete</span>
-              </Button>
+            {editing && (
+              <CardFooter className="flex">
+                <Button
+                  className="ml-auto bg-gradient-to-tr from-[#c43646] to-[#d876e3] text-white shadow-lg"
+                  size="md"
+                  color="default"
+                  onPress={() => {
+                    colorPickerRef.current?.onOpen()
+                  }}
+                >
+                  Change Color
+                </Button>
+                {!disabledDelete && (
+                  <Button className="ml-3" color="danger" onPress={onDelete}>
+                    <RiDeleteBin2Fill size={"1.1rem"} />
+                    <span>Delete</span>
+                  </Button>
+                )}
+                <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activityType)}>
+                  <RiSaveFill size={"1.1rem"} />
+                  <span>Save</span>
+                </Button>
+              </CardFooter>
             )}
-            <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activityType)}>
-              <RiSaveFill size={"1.1rem"} />
-              <span>Save</span>
-            </Button>
-          </CardFooter>
+          </>
+        )}
+
+        {!activityType && (
+          <CardBody className="flex justify-center items-center">
+            <span className="flex-1 flex items-center justify-center text-foreground-400">
+              {"This activity hasn't been specified with a type, click me to add."}
+            </span>
+          </CardBody>
         )}
       </Card>
 
