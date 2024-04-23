@@ -27,8 +27,11 @@ export type ActivityTypePickerRef = {
 export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityTypePickerProps>(({ onConfirm }, ref) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { repo } = useLayoutContext()
-  const [selectedActivityType, setSelectedActivityType] = useState<ActivityTypeModel | null>()
-  const [newActivityType, setNewActivityType] = useState<ActivityTypeModel | null>()
+  const [selectedActivityType, setSelectedActivityType] = useState<ActivityTypeModel>()
+
+  const [isEditing, setIsEditing] = useState(false)
+
+  const createMutation = trpc.activityTypes.create.useMutation()
 
   const activityTypes = trpc.activityTypes.list.useQuery(
     {
@@ -45,7 +48,7 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   const isFetching = activityTypes.isFetching
 
   useEffect(() => {
-    setNewActivityType(null)
+    setIsEditing(false)
   }, [isFetching])
 
   const onConfirmButtonPress = () => {
@@ -56,16 +59,22 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   }
 
   const onCreateButtonPress = () => {
-    setNewActivityType(
-      new ActivityTypeModel({
-        name: "",
-        description: "",
-      }),
-    )
+    setIsEditing(true)
   }
 
-  const onNewActivityTypeCancel = () => {
-    setNewActivityType(null)
+  const onActivityTypeDeleted = () => {
+    setIsEditing(false)
+  }
+
+  const onActivityTypeSave = async (value: ActivityTypeModel) => {
+    try {
+      const res = await createMutation.mutateAsync(value)
+      console.log(res)
+      setIsEditing(false)
+      activityTypes.refetch()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   useImperativeHandle(ref, () => ({
@@ -81,11 +90,17 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
           <ModalHeader>Active Manager</ModalHeader>
 
           <ModalBody className="min-h-36 flex flex-col relative">
-            {newActivityType && (
-              <ActivityTypeCard activityType={newActivityType} editing onDelete={onNewActivityTypeCancel} />
+            {isEditing && (
+              <ActivityTypeCard
+                activityType={new ActivityTypeModel({ name: "" })}
+                editing
+                onDelete={onActivityTypeDeleted}
+                onSave={(value) => onActivityTypeSave(value)}
+              />
             )}
+
             <div className="flex-1 flex flex-col items-center text-foreground-400">
-              {!newActivityType && (
+              {!isEditing && (
                 <Button variant="bordered" size="lg" className="w-full !py-10" onPress={onCreateButtonPress}>
                   <RiAddFill />
                   <span>Create an activity type</span>

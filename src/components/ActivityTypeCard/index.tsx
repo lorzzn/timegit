@@ -7,7 +7,7 @@ import { useRef, useState } from "react"
 import ColorPickerModal, { ColorPickerModalRef } from "../ColorPickerModal"
 
 type ActivityTypeCardProps = {
-  activityType?: ActivityType | null
+  activityType?: ActivityType
   editing?: boolean
   onPress?: () => void
   onSave?: (activityType: ActivityType) => void
@@ -25,7 +25,7 @@ const ActivityTypeCard = ({
   disabledDelete,
   emptyText = "No activity type has been specified",
 }: ActivityTypeCardProps) => {
-  const [activityType, setActivityType] = useState<ActivityType | null | undefined>(propActivityType)
+  const [activityType, setActivityType] = useState<ActivityType | undefined>(propActivityType)
 
   const colorPickerRef = useRef<ColorPickerModalRef | null>(null)
 

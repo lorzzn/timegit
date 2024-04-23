@@ -1,28 +1,28 @@
+import { DayDate, daydate } from "@/utils/daydate"
 import { randomString } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
-import dayjs, { Dayjs } from "dayjs"
 import { dump } from "js-yaml"
 import { compact } from "lodash"
 import ActivityType from "./activityType"
 
 export type UserActivityProps = {
-  date: Dayjs | string | number
+  date: DayDate | string | number
   activity: ActivityType | null
 
-  start: Dayjs | string | number
-  end: Dayjs | string | number
+  start: DayDate | string | number
+  end: DayDate | string | number
 
   description?: string
 }
 
 class UserActivity {
-  static dateLabelMark: string = "#date:"
+  static dateLabelPrefix: string = "@date:"
 
-  date: Dayjs
+  date: DayDate
   activity: UserActivityProps["activity"]
 
-  start: Dayjs
-  end: Dayjs
+  start: DayDate
+  end: DayDate
 
   description: UserActivityProps["description"]
 
@@ -30,39 +30,40 @@ class UserActivity {
     this.validateProps(props)
     const { date, activity, start, end, description } = props
 
-    this.date = dayjs(date)
+    this.date = daydate(date)
     this.activity = activity
-    this.start = dayjs(start)
-    this.end = dayjs(end)
+    this.start = daydate(start)
+    this.end = daydate(end)
     this.description = description
   }
 
   private validateProps(props: UserActivityProps): void {
     const { date, start, end } = props
-    if (!dayjs(date).isValid()) {
+    if (!daydate(date).isValid()) {
       throw new Error("Invalid date")
     }
 
-    if (!dayjs(start).isValid()) {
+    if (!daydate(start).isValid()) {
       throw new Error("Invalid start time")
     }
 
-    if (!dayjs(end).isValid()) {
+    if (!daydate(end).isValid()) {
       throw new Error("Invalid end time")
     }
   }
 
-  static dateToLabelValue(date: Dayjs) {
-    return `#date:${date.year()}-${date.month() + 1}-${date.date()}`
+  static dateToLabelValue(date: DayDate) {
+    return `${UserActivity.dateLabelPrefix}${date.year()}-${date.month() + 1}-${date.date()}`
   }
 
   toIssueObject(): Endpoints["POST /repos/{owner}/{repo}/issues"]["request"]["data"] {
     return {
       title: randomString(8, "Timegit | "),
-      labels: compact(["timegit", UserActivity.dateToLabelValue(this.date), this.activity?.value]),
+      labels: compact(["timegit", UserActivity.dateToLabelValue(this.date), this.activity?.labelValue]),
       body: dump({
         start: this.start.format("YYYY-MM-DD HH:mm:ss"),
         end: this.end.format("YYYY-MM-DD HH:mm:ss"),
+        description: this.description,
       }),
     }
   }

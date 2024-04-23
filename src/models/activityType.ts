@@ -1,23 +1,26 @@
 import { z } from "zod"
 
 export type ActivityTypeProps = {
+  id?: number
   name: string
   color?: string
   description?: string
 }
 
 class ActivityType {
-  static labelMark: string = "#activity:"
+  static labelPrefix: string = "@activity:"
   static zodUtil = z.custom<ActivityType>((val) => val instanceof ActivityType, "Invalid activity")
 
+  id: ActivityTypeProps["id"]
   name: ActivityTypeProps["name"]
-  color?: ActivityTypeProps["color"]
-  description?: ActivityTypeProps["description"]
+  color: ActivityTypeProps["color"]
+  description: ActivityTypeProps["description"]
 
   constructor(props: ActivityTypeProps) {
     this.validateProps(props)
-    const { name, color, description } = props
+    const { name, color, description, id } = props
 
+    this.id = id
     this.name = name
     this.color = color
     this.description = description
@@ -30,8 +33,8 @@ class ActivityType {
     }
   }
 
-  get value() {
-    return `#label:${this.name}`
+  get labelValue() {
+    return `${ActivityType.labelPrefix}${this.name}`
   }
 
   update(props: Partial<ActivityTypeProps>) {

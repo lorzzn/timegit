@@ -20,7 +20,7 @@ export const activityTypes = router({
 
       const query = buildQuery({
         repository_id: input.repository_id,
-        q: ActivityType.labelMark,
+        q: ActivityType.labelPrefix,
       })
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
@@ -29,14 +29,14 @@ export const activityTypes = router({
 
       return data
     }),
-  add: procedure
-    .input(z.object({ name: z.string(), color: z.string(), description: z.string().max(100) }))
+  create: procedure
+    .input(z.object({ name: z.string(), color: z.string().optional(), description: z.string().max(100).optional() }))
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session
       const activity = new ActivityType(input)
 
       const body: Endpoints["POST /repos/{owner}/{repo}/labels"]["request"]["data"] = {
-        name: activity.value,
+        name: activity.labelValue,
         color: activity.color,
         description: activity.description,
       }
@@ -66,7 +66,7 @@ export const activityTypes = router({
       }
 
       const response = await ghapi(
-        `/repos/${getUserTimegitRepoPath(session)}/labels/${activity.value}`,
+        `/repos/${getUserTimegitRepoPath(session)}/labels/${activity.labelValue}`,
         session?.token,
         {
           method: "PATCH",
@@ -82,9 +82,13 @@ export const activityTypes = router({
     const session = ctx.session
     const activity = new ActivityType(input)
 
-    const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/labels/${activity.value}`, session?.token, {
-      method: "DELETE",
-    })
+    const response = await ghapi(
+      `/repos/${getUserTimegitRepoPath(session)}/labels/${activity.labelValue}`,
+      session?.token,
+      {
+        method: "DELETE",
+      },
+    )
     await validateGhapiResponse(response)
     const data = (await response.json()) as Endpoints["DELETE /repos/{owner}/{repo}/labels/{name}"]["response"]["data"]
 
