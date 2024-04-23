@@ -1,5 +1,6 @@
 "use client"
 
+import { useLayoutContext } from "@/layout/context"
 import { trpc } from "@/trpc/client"
 import { calendarDateToDayjs, dayjsToCalendarDate } from "@/utils/date"
 import {
@@ -13,28 +14,25 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Progress,
   useDisclosure,
 } from "@nextui-org/react"
 import { RiAddFill } from "@remixicon/react"
 import dayjs from "dayjs"
 import { useState } from "react"
 
-type AppProps = {
-  serverDate: number
-}
+const App = () => {
+  const { serverDate } = useLayoutContext()
 
-const App = ({ serverDate }: AppProps) => {
   const today = dayjs(serverDate)
   const [date, setDate] = useState(dayjs(serverDate))
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [calendarDate, setCalendarDate] = useState(dayjsToCalendarDate(date))
 
-  const day = trpc.day.get.useQuery({
-    year: date.year(),
-    month: date.month() + 1,
-    day: date.date(),
+  const userActivities = trpc.userActivities.list.useQuery({
+    date,
   })
-  const mut = trpc.day.create.useMutation()
+  const mut = trpc.userActivities.create.useMutation()
 
   const showCalendarModal = () => {
     setCalendarDate(dayjsToCalendarDate(date))
@@ -50,27 +48,26 @@ const App = ({ serverDate }: AppProps) => {
     onClose()
   }
 
-  const onAdd = async () => {
-    mut.mutate({
-      year: date.year(),
-      month: date.month() + 1,
-      day: date.date(),
-    })
+  const onCreate = () => {
+    window.location.href = "/user/activities/create"
   }
 
   return (
     <>
       <div className="flex-1 flex flex-col">
-        <div className="pt-6 pb-2 flex justify-between">
-          <Button variant="light" radius="sm" size="lg" onClick={showCalendarModal}>
+        <div className="pb-2 flex justify-between">
+          <Button variant="light" radius="sm" size="lg" onPress={showCalendarModal}>
             {date.format("YYYY / MM / DD")}
           </Button>
-          <Button variant="light" radius="sm" size="lg" onClick={onAdd}>
+          <Button variant="light" radius="sm" size="lg" onPress={onCreate}>
             <RiAddFill />
-            <span>Add</span>
+            <span>Create</span>
           </Button>
         </div>
+
+        {userActivities.isFetching && <Progress size="sm" isIndeterminate aria-label="Fetching..." />}
         <Divider />
+
         <div className="flex-1 flex flex-col"></div>
       </div>
 

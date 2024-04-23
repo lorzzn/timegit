@@ -13,8 +13,9 @@ export function randomString(
 export const buildQuery = (query: any) => {
   let queryString = ""
   for (const key in query) {
-    if (query[key]) {
-      queryString += `${key}=${query[key]}&`
+    const value = encodeURIComponent(query[key])
+    if (value) {
+      queryString += `${key}=${value}&`
     }
   }
   return queryString.slice(0, -1)
@@ -23,8 +24,9 @@ export const buildQuery = (query: any) => {
 export const buildGhapiQuery = (query: any) => {
   let queryString = ""
   for (const key in query) {
+    const value = encodeURIComponent(query[key])
     if (query[key]) {
-      queryString += `${key}:${query[key]}+`
+      queryString += `${key}:${value}+`
     }
   }
   return queryString.slice(0, -1)

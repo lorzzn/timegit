@@ -2,22 +2,22 @@
 
 import TCard from "@/components/TCard"
 import { trpc } from "@/trpc/client"
-import { Button, Divider, Snippet } from "@nextui-org/react"
+import { Button, Code, Divider } from "@nextui-org/react"
 import { RiGithubFill } from "@remixicon/react"
 
 type SetupProps = {
   repoName?: string
-  repoPrivate?: string
+  repoPrivate: boolean
 }
 
 const Setup = (props: SetupProps) => {
-  const mutation = trpc.gh.create.useMutation()
+  const mutation = trpc.repo.create.useMutation()
 
   const onConfirm = async () => {
     if (props.repoName) {
       mutation.mutate({
         repoName: props.repoName,
-        private: props.repoPrivate === "true",
+        private: props.repoPrivate,
       })
     }
   }
@@ -32,11 +32,9 @@ const Setup = (props: SetupProps) => {
           </div>
           <div>
             <span>Create repository</span>
-            <Snippet symbol="" hideCopyButton className="py-0 px-2 mx-1">
-              {props.repoName}
-            </Snippet>
+            <Code className="py-0 px-2 mx-1">{props.repoName}</Code>
             <ul className="list-disc text-small my-3 break-words ml-3">
-              {props.repoPrivate === "true" && (
+              {props.repoPrivate && (
                 <li>
                   <span>The repository will be created as a</span>
                   <strong> private </strong>

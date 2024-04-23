@@ -1,5 +1,8 @@
+import { ServerSession } from "@/auth"
 import { TRPCGhapiError } from "@/trpc/errors/ghapi"
+import chalk from "chalk"
 import { assign, get } from "lodash"
+import { env } from "./env"
 
 const ghapiBaseUrl = "https://api.github.com"
 
@@ -20,7 +23,22 @@ export const ghapi = async (url: string, token?: string, options?: RequestInit, 
         Authorization: `token ${token}`,
       })
     }
-    return fetch(ghapiBaseUrl + url, options)
+    url = ghapiBaseUrl + url
+    const request = new Request(url, options)
+    const fetchStartTime = performance.now()
+    const response = await fetch(request)
+
+    console.log(
+      "",
+      request.method,
+      chalk.bgGreen.white("ghapi"),
+      response.url,
+      (response.ok ? chalk.green : chalk.red)(response.status),
+      "in",
+      chalk.white((performance.now() - fetchStartTime) | 0) + "ms",
+    )
+
+    return response
   } catch (error) {
     throw new Error("Failed to fetch data from GitHub")
   }
@@ -42,4 +60,8 @@ export const validateGhapiResponse = async (_response: Response) => {
       response,
     })
   }
+}
+
+export const getUserTimegitRepoPath = (session: ServerSession) => {
+  return `${session?.login}/${env.GITHUB_REPOSITORY_NAME}`
 }

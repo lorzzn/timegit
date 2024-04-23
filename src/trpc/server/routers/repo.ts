@@ -3,7 +3,7 @@ import { Endpoints } from "@octokit/types"
 import { z } from "zod"
 import { procedure, router } from ".."
 
-export const gh = router({
+export const repo = router({
   get: procedure
     .input(
       z.object({
