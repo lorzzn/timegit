@@ -55,7 +55,7 @@ const Create = () => {
       date: today,
       start: daydate(start),
       end: daydate(end),
-      activity: activity?.toObject(),
+      activities: [activity?.toObject()],
       description,
     })
   }

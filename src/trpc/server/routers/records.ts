@@ -3,10 +3,12 @@ import Record from "@/models/record"
 import { dayjsZodUtil } from "@/utils/date"
 import { daydate } from "@/utils/daydate"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
-import { buildGhapiQuery, buildQuery } from "@/utils/stringFuncs"
+import { buildQuery } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
+import { pick } from "lodash"
 import { z } from "zod"
 import { procedure, router } from ".."
+import { RecordsList } from "../types/records"
 
 export const records = router({
   list: procedure
@@ -18,27 +20,31 @@ export const records = router({
     .query(async ({ input, ctx }) => {
       const session = ctx.session
       const query = buildQuery({
-        q: buildGhapiQuery({
-          label: Record.dateToLabelValue(input.date),
-          repo: getUserTimegitRepoPath(session),
-          is: "open",
-        }),
-      })
+        state: "open",
+        labels: [Record.dateToLabelValue(input.date), "timegit"].join(","),
+      } as Endpoints["GET /repos/{owner}/{repo}/issues"]["parameters"])
 
-      const response = await ghapi(`/search/issues?${query}`, session?.token)
+      const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues?${query}`, session?.token)
       await validateGhapiResponse(response)
-      const data = (await response.json()) as Endpoints["GET /search/issues"]["response"]["data"]
+      const data = ((await response.json()) as Endpoints["GET /repos/{owner}/{repo}/issues"]["response"]["data"]).map(
+        (item) => {
+          const picked = pick(item, ["id", "url", "title", "body", "labels", "created_at", "updated_at", "html_url"])
+          return {
+            ...picked,
+          }
+        },
+      )
 
-      return data
+      return data as RecordsList
     }),
   create: procedure
     .input(
       z.object({
         date: daydate.zodUtil,
-        activity: Activity.zodUtil.nullable().optional(),
+        activities: z.array(Activity.zodUtil),
         start: daydate.zodUtil,
         end: daydate.zodUtil,
-        description: z.string().optional(),
+        description: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -59,9 +65,10 @@ export const records = router({
       z.object({
         id: z.number(),
         date: dayjsZodUtil,
-        activity: Activity.zodUtil.nullable(),
+        activities: z.array(Activity.zodUtil),
         start: dayjsZodUtil,
         end: dayjsZodUtil,
+        description: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

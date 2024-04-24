@@ -1,8 +1,10 @@
 "use client"
 
 import { useLayoutContext } from "@/layout/context"
+import Record from "@/models/record"
 import { trpc } from "@/trpc/client"
 import { DayDate, daydate } from "@/utils/daydate"
+import { twclx } from "@/utils/twclx"
 import {
   Button,
   Calendar,
@@ -19,6 +21,7 @@ import {
 } from "@nextui-org/react"
 import { RiAddFill } from "@remixicon/react"
 import { useState } from "react"
+import { When } from "react-if"
 
 const App = () => {
   const { serverDate } = useLayoutContext()
@@ -31,7 +34,10 @@ const App = () => {
   const records = trpc.records.list.useQuery({
     date,
   })
-  const mut = trpc.records.create.useMutation()
+
+  // status
+  const isEmpty = !records.isFetching && records.isFetched && records.data?.length === 0
+  const isFetching = records.isFetching
 
   const showCalendarModal = () => {
     setCalendarDate(date.toCalendarDate())
@@ -64,10 +70,38 @@ const App = () => {
           </Button>
         </div>
 
-        {records.isFetching && <Progress size="sm" isIndeterminate aria-label="Fetching..." />}
+        {isFetching && (
+          <div className="relative">
+            <Progress size="sm" isIndeterminate aria-label="Fetching..." className="absolute -translate-y-full" />
+          </div>
+        )}
         <Divider />
 
-        <div className="flex-1 flex flex-col"></div>
+        <div className="flex-1 flex flex-col">
+          <When condition={isEmpty}>
+            <div className="flex-1 flex flex-col items-center text-foreground-400">
+              <span className="flex-1 flex items-center justify-center">No record found.</span>
+            </div>
+          </When>
+
+          <When condition={!isEmpty}>
+            <div className={twclx(["grid grid-cols-[20px_auto]"])}>
+              <div className={twclx(["border-l-2 border-foreground-300"])}></div>
+              <div className={twclx([""])}>
+                {records.data?.map((record) => {
+                  const t = Record.fromIssueObject(record)
+
+                  return (
+                    <div key={t.id}>
+                      <div>{t.start.toString()}</div>
+                      <div>{t.description}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </When>
+        </div>
       </div>
 
       {/* Calendar modal */}
