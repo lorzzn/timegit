@@ -19,7 +19,14 @@ export type ActivityObject = {
 
 class Activity {
   static labelPrefix: string = "@activity:"
-  static zodUtil = z.custom<Activity>((val) => val instanceof Activity && !!val.name, "Invalid activity")
+  static zodUtil = z
+    .custom<Activity>((val) => {
+      const t = new Activity(val as any)
+      return t.isValid()
+    }, "Invalid activity")
+    .transform((val) => {
+      return new Activity(val as any)
+    })
 
   id: ActivityProps["id"]
   value: ActivityProps["value"]
@@ -58,6 +65,10 @@ class Activity {
       throw Error("Invalid label value")
     }
     this.value = str.replace(Activity.labelPrefix, "")
+  }
+
+  isValid() {
+    return this.value && this.color && this.color.isValid()
   }
 
   update(props: Partial<ActivityProps>) {

@@ -7,7 +7,7 @@ import Activity from "./activity"
 
 export type RecordProps = {
   date: DayDate | string | number
-  activity: Activity | null
+  activity?: Activity | null
 
   start: DayDate | string | number
   end: DayDate | string | number

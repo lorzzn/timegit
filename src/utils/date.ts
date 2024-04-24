@@ -10,5 +10,5 @@ export const dateFormat = (date: dayjs.ConfigType, template: string = "YYYY/MM/D
 }
 
 export const dayjsZodUtil = z
-  .custom<Dayjs>((val: any) => daydate(val).isValid(), "Invalid date")
+  .custom<Dayjs>((val: any) => dayjs(val).isValid(), "Invalid date")
   .transform((val) => daydate(val))

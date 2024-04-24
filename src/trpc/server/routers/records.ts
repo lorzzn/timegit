@@ -1,6 +1,7 @@
 import Activity from "@/models/activity"
 import Record from "@/models/record"
 import { dayjsZodUtil } from "@/utils/date"
+import { daydate } from "@/utils/daydate"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
 import { buildGhapiQuery, buildQuery } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
@@ -33,10 +34,11 @@ export const records = router({
   create: procedure
     .input(
       z.object({
-        date: dayjsZodUtil,
-        activity: Activity.zodUtil.nullable(),
-        start: dayjsZodUtil,
-        end: dayjsZodUtil,
+        date: daydate.zodUtil,
+        activity: Activity.zodUtil.nullable().optional(),
+        start: daydate.zodUtil,
+        end: daydate.zodUtil,
+        description: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -50,10 +52,7 @@ export const records = router({
 
       await validateGhapiResponse(response)
       const data = (await response.json()) as Endpoints["POST /repos/{owner}/{repo}/issues"]["response"]["data"]
-      return {
-        id: data.id,
-        url: data.html_url,
-      }
+      return data
     }),
   update: procedure
     .input(
@@ -93,6 +92,9 @@ export const records = router({
       const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues/${input.id}`, session?.token, {
         method: "DELETE",
       })
+
+      console.log(response.status)
+      console.log(response.body)
 
       await validateGhapiResponse(response)
       return true

@@ -2,14 +2,20 @@ import { CalendarDate, ZonedDateTime } from "@internationalized/date"
 import dayjs, { ConfigType, Dayjs } from "dayjs"
 import timezone from "dayjs/plugin/timezone"
 import utc from "dayjs/plugin/utc"
+import { z } from "zod"
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
 export interface DayDate extends Dayjs {}
 
+export type DayDateConfig = ConfigType | ZonedDateTime
+
 export class DayDate {
-  constructor(config?: ConfigType) {
+  constructor(config?: DayDateConfig) {
+    if (config instanceof ZonedDateTime) {
+      config = config.toDate()
+    }
     Object.assign(this, dayjs.prototype, dayjs(config))
   }
 
@@ -30,8 +36,12 @@ export class DayDate {
 
   static tz = dayjs.tz
 
+  static zodUtil = z
+    .custom<DayDate>((val: any) => daydate(val).isValid(), "Invalid date")
+    .transform((val) => daydate(val))
+
   toZonedDateTime() {
-    // dayjs offset use minutes, while ZonedDateTime use milliseconds...
+    // dayjs offset use minutes, while ZonedDateTime use milliseconds.
     const offset = this.utcOffset().valueOf() * 60 * 1000
     return new ZonedDateTime(
       this.year(),
@@ -47,7 +57,9 @@ export class DayDate {
   }
 }
 
-export function daydate(config?: ConfigType) {
+export function daydate(config?: DayDateConfig) {
   return new DayDate(config)
 }
-daydate.tz = dayjs.tz
+daydate.tz = DayDate.tz
+daydate.fromCalendarDate = DayDate.fromCalendarDate
+daydate.zodUtil = DayDate.zodUtil
