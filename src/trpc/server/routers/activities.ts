@@ -30,7 +30,7 @@ export const activities = router({
         repository_id: input.repository_id,
         q: Activity.labelPrefix,
         sort: "created",
-        order: "asc",
+        order: "desc",
         page: input.page,
         per_page: input.per_page,
       })

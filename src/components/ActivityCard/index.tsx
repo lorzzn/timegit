@@ -65,7 +65,8 @@ const ActivityCard = ({
                 <Then>
                   <Input
                     label="Name"
-                    required
+                    isRequired
+                    isClearable
                     value={activity?.value}
                     onValueChange={(value) => updateActivity("value", value)}
                   />
@@ -111,7 +112,13 @@ const ActivityCard = ({
                     <span>Delete</span>
                   </Button>
                 </When>
-                <Button className="ml-3" color="primary" size="sm" onPress={() => activity && onSave?.(activity)}>
+                <Button
+                  className="ml-3"
+                  color="primary"
+                  size="sm"
+                  onPress={() => activity && onSave?.(activity)}
+                  isDisabled={!activity?.value}
+                >
                   <RiSaveFill size={"1.1rem"} />
                   <span>Save</span>
                 </Button>

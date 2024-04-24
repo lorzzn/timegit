@@ -62,7 +62,7 @@ const Create = () => {
       <Textarea
         classNames={{
           base: twclx("flex"),
-          input: twclx("resize-y min-h-64"),
+          input: twclx("min-h-64"),
         }}
       />
     </div>

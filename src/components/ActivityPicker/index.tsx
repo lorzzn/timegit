@@ -113,8 +113,10 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
         updateCurrent()
       }
     } else {
-      await createMutation.mutateAsync(activity.toObject((val) => pick(val, ["name", "color", "description"])))
-      list.refetch()
+      if (activity.value) {
+        await createMutation.mutateAsync(activity.toObject((val) => pick(val, ["name", "color", "description"])))
+        list.refetch()
+      }
     }
   }
 
@@ -142,8 +144,29 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
         <ModalContent>
           <ModalHeader>Select an activity</ModalHeader>
 
-          <ModalBody className={twclx(["min-h-36 flex flex-col relative items-center"])}>
+          <ModalBody className={twclx(["flex flex-col relative items-center overflow-y-auto"])}>
             <div className={twclx([widthClass])}>
+              {/* here is creat activity., show the card for editing */}
+              <If condition={isEditing && !currentActivity?.id}>
+                <Then>
+                  <div className="my-3">
+                    <ActivityCard
+                      editing
+                      activity={currentActivity}
+                      onDelete={onActivityDelete}
+                      onChange={(value) => setCurrentActivity(value)}
+                      onSave={(value) => onActivitySave(value)}
+                    />
+                  </div>
+                </Then>
+                <Else>
+                  <Button variant="bordered" size="lg" className="w-full !py-10 !my-3" onPress={onCreateButtonPress}>
+                    <RiAddFill />
+                    <span>Create an activity</span>
+                  </Button>
+                </Else>
+              </If>
+
               {/* activities list */}
               <When condition={!isEmpty}>
                 <div className="flex flex-col space-y-3">
@@ -173,27 +196,6 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
                   })}
                 </div>
               </When>
-
-              {/* here is creat activity., show the card for editing */}
-              <If condition={isEditing && !currentActivity?.id}>
-                <Then>
-                  <div className="my-3">
-                    <ActivityCard
-                      editing
-                      activity={currentActivity}
-                      onDelete={onActivityDelete}
-                      onChange={(value) => setCurrentActivity(value)}
-                      onSave={(value) => onActivitySave(value)}
-                    />
-                  </div>
-                </Then>
-                <Else>
-                  <Button variant="bordered" size="lg" className="w-full !py-10 !my-3" onPress={onCreateButtonPress}>
-                    <RiAddFill />
-                    <span>Create an activity</span>
-                  </Button>
-                </Else>
-              </If>
 
               <When condition={isEmpty}>
                 <div className="flex-1 flex flex-col items-center text-foreground-400">
