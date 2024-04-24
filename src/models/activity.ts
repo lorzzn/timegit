@@ -7,7 +7,6 @@ export type ActivityProps = {
   name?: string // with prefix
   color?: string
   description?: string
-  withoutLeadingColor?: string
 }
 
 export type ActivityObject = {
@@ -29,7 +28,7 @@ class Activity {
 
   constructor(props: ActivityProps) {
     this.validateProps(props)
-    const { value, color, description, id, name, withoutLeadingColor } = props
+    const { value, color, description, id, name } = props
 
     this.id = id
     this.value = value
@@ -38,10 +37,6 @@ class Activity {
 
     if (name) {
       this.name = name
-    }
-
-    if (withoutLeadingColor) {
-      this.withoutLeadingColor = withoutLeadingColor
     }
   }
 
@@ -61,14 +56,6 @@ class Activity {
       throw Error("Invalid label value")
     }
     this.value = str.replace(Activity.labelPrefix, "")
-  }
-
-  get withoutLeadingColor(): string | undefined {
-    return this.color?.toHex()
-  }
-
-  set withoutLeadingColor(str: string) {
-    this.color = tinycolor(str)
   }
 
   update(props: Partial<ActivityProps>) {
