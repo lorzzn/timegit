@@ -1,7 +1,7 @@
 import Activity from "@/models/activity"
 import { twclx } from "@/utils/twclx"
 import { css } from "@emotion/css"
-import { Button, Card, CardBody, CardFooter, CardHeader, Input, Textarea } from "@nextui-org/react"
+import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Input, Textarea } from "@nextui-org/react"
 import { RiDeleteBin2Fill, RiSaveFill } from "@remixicon/react"
 import { useRef, useState } from "react"
 import { Else, If, Then, When } from "react-if"
@@ -70,7 +70,7 @@ const ActivityCard = ({
               </If>
             </CardHeader>
 
-            <CardBody className="py-0">
+            <CardBody className={twclx([{ hidden: !activity?.description && !editing }])}>
               <If condition={editing}>
                 <Then>
                   <div className="flex flex-col">
@@ -85,13 +85,12 @@ const ActivityCard = ({
                     </When>
                   </div>
                 </Then>
-                <Else>
-                  <div className={twclx([{ "pb-3": activity?.description }])}>{activity?.description}</div>
-                </Else>
+                <Else>{activity?.description}</Else>
               </If>
             </CardBody>
 
             <When condition={editing}>
+              <Divider />
               <CardFooter className="flex">
                 <Button
                   className="ml-auto bg-gradient-to-tr from-[#c43646] to-[#d876e3] text-white shadow-lg"
