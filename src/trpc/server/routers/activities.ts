@@ -6,10 +6,21 @@ import { z } from "zod"
 import { procedure, router } from ".."
 
 export const activities = router({
+  get: procedure.input(z.object({ value: z.string() })).query(async ({ ctx, input }) => {
+    const session = ctx.session
+    const activity = new Activity(input)
+
+    const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/labels/${activity.name}`, session?.token)
+    await validateGhapiResponse(response)
+    const data = (await response.json()) as Endpoints["GET /repos/{owner}/{repo}/labels/{name}"]["response"]["data"]
+    return data
+  }),
   list: procedure
     .input(
       z.object({
         repository_id: z.number(),
+        per_page: z.number().optional(),
+        page: z.number().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -18,6 +29,10 @@ export const activities = router({
       const query = buildQuery({
         repository_id: input.repository_id,
         q: Activity.labelPrefix,
+        sort: "created",
+        order: "asc",
+        page: input.page,
+        per_page: input.per_page,
       })
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
@@ -34,7 +49,7 @@ export const activities = router({
 
       const body: Endpoints["POST /repos/{owner}/{repo}/labels"]["request"]["data"] = {
         name: activity.name,
-        color: activity.withoutLeadingColor,
+        color: activity.color.toHex(),
         description: activity.description,
       }
 
