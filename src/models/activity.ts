@@ -10,6 +10,14 @@ export type ActivityProps = {
   withoutLeadingColor?: string
 }
 
+export type ActivityObject = {
+  id?: number
+  value?: string
+  color: string
+  description?: string
+  name: string
+}
+
 class Activity {
   static labelPrefix: string = "@activity:"
   static zodUtil = z.custom<Activity>((val) => val instanceof Activity && !!val.name, "Invalid activity")
@@ -67,14 +75,14 @@ class Activity {
     return new Activity({ ...this, ...props })
   }
 
-  toObject() {
-    return {
+  toObject(callbackFunc: (obj: ActivityObject) => any = (obj) => obj) {
+    return callbackFunc({
       id: this.id,
       value: this.value,
       color: this.color?.toHex(),
       description: this.description,
       name: this.name,
-    }
+    })
   }
 }
 

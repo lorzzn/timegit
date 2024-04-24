@@ -14,6 +14,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react"
 import { RiAddFill, RiArrowLeftLine, RiRefreshLine } from "@remixicon/react"
+import { pick } from "lodash"
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import { Else, If, Then, When } from "react-if"
 import ActivityCard from "../ActivityCard"
@@ -37,25 +38,25 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const updateMutation = trpc.activities.update.useMutation()
   const deleteMutation = trpc.activities.delete.useMutation()
 
-  const resetModal = () => {
-    setCurrentlyActivity(null)
-    setEditingActivity(null)
+  const { repo } = useLayoutContext()
+  const repoId = repo?.id || 0
+
+  const [currentActivity, setCurrentActivity] = useState<ActivityModel | null>()
+  const [currentEditingActivity, setCurrentEditingActivity] = useState<ActivityModel | null>()
+
+  const [isEditing, setIsEditing] = useState(false)
+
+  const updateCurrent = (activity: ActivityModel | null = null) => {
+    setCurrentActivity(activity)
+    setCurrentEditingActivity(activity)
     setIsEditing(false)
   }
 
   const onClose = () => {
     _onclose()
     actionOnClose()
-    resetModal()
+    updateCurrent()
   }
-
-  const { repo } = useLayoutContext()
-  const repoId = repo?.id || 0
-
-  const [currentlyActivity, setCurrentlyActivity] = useState<ActivityModel | null>()
-  const [editingActivity, setEditingActivity] = useState<ActivityModel | null>()
-
-  const [isEditing, setIsEditing] = useState(false)
 
   const activitys = trpc.activities.list.useQuery(
     {
@@ -72,19 +73,22 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const isFetching = activitys.isFetching
 
   useEffect(() => {
-    resetModal()
+    updateCurrent()
   }, [isFetching])
 
   const onCreateButtonPress = () => {
-    setCurrentlyActivity(new ActivityModel({}))
+    setCurrentActivity(new ActivityModel({}))
     setIsEditing(true)
   }
 
   const onActivityDelete = async () => {
-    if (!currentlyActivity?.name) return
+    if (!currentActivity?.id) {
+      updateCurrent()
+      return
+    }
 
     await deleteMutation.mutateAsync({
-      name: currentlyActivity.name,
+      name: currentActivity.name,
     })
     setTimeout(() => {
       activitys.refetch()
@@ -93,11 +97,11 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   const onActivitySave = async (value: ActivityModel) => {
     if (!value.id) {
-      await createMutation.mutateAsync(value.toObject())
+      await createMutation.mutateAsync(value.toObject((val) => pick(val, ["name", "color", "description"])))
     } else {
-      if (!editingActivity) return
+      if (!currentEditingActivity) return
       await updateMutation.mutateAsync({
-        ...editingActivity.toObject(),
+        ...currentEditingActivity.toObject(),
         new_name: value.name,
       })
     }
@@ -112,8 +116,8 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   }))
 
   const onSelectActionButtonPress = () => {
-    onConfirm?.(currentlyActivity)
-    resetModal()
+    onConfirm?.(currentActivity)
+    updateCurrent()
     onClose()
   }
 
@@ -124,7 +128,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   return (
     <>
-      <ActivityCard activity={currentlyActivity} onPress={onOpen} />
+      <ActivityCard activity={currentActivity} onPress={onOpen} />
 
       <Modal size="full" isOpen={isOpen} onClose={onClose}>
         <ModalContent>
@@ -147,14 +151,13 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
                       <ActivityCard
                         key={activity.id}
                         activity={t}
-                        editing={isEditing && activity.id === currentlyActivity?.id}
+                        editing={isEditing && activity.id === currentActivity?.id}
                         onPress={() => {
-                          setEditingActivity(t)
-                          setCurrentlyActivity(t)
+                          updateCurrent(t)
                           actionOnOpen()
                         }}
                         onDelete={onActivityDelete}
-                        onChange={(value) => setCurrentlyActivity(value)}
+                        onChange={(value) => setCurrentActivity(value)}
                         onSave={(value) => onActivitySave(value)}
                       />
                     )
@@ -162,15 +165,15 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
                 </div>
               </When>
 
-              {/* here is creat at., show the card for editing */}
-              <If condition={isEditing && !currentlyActivity?.id}>
+              {/* here is creat activity., show the card for editing */}
+              <If condition={isEditing && !currentActivity?.id}>
                 <Then>
                   <div className="my-3">
                     <ActivityCard
                       editing
-                      activity={currentlyActivity}
+                      activity={currentActivity}
                       onDelete={onActivityDelete}
-                      onChange={(value) => setCurrentlyActivity(value)}
+                      onChange={(value) => setCurrentActivity(value)}
                       onSave={(value) => onActivitySave(value)}
                     />
                   </div>
