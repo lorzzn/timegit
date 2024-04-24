@@ -7,13 +7,14 @@ export type ActivityProps = {
   name?: string // with prefix
   color?: string
   description?: string
+  updated?: boolean
 }
 
 export type ActivityObject = {
   id?: number
-  value?: string
+  value: string
   color: string
-  description?: string
+  description: string
   name: string
 }
 
@@ -29,20 +30,20 @@ class Activity {
     })
 
   id: ActivityProps["id"]
-  value: ActivityProps["value"]
+  value: string
   color: tinycolor.Instance
-  description: ActivityProps["description"]
+  description: string
   updated: boolean
 
-  constructor(props: ActivityProps & { updated?: boolean }) {
+  constructor(props: ActivityProps) {
     this.validateProps(props)
     const { value, color, description, id, name, updated } = props
 
     this.id = id
-    this.value = value
+    this.value = String(value)
     this.color = tinycolor(color)
-    this.description = description
-    this.updated = updated ?? false
+    this.description = String(description)
+    this.updated = Boolean(updated)
 
     if (name) {
       this.name = name
