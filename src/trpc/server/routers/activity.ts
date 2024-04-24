@@ -5,7 +5,7 @@ import { Endpoints } from "@octokit/types"
 import { z } from "zod"
 import { procedure, router } from ".."
 
-export const activities = router({
+export const activity = router({
   get: procedure.input(z.object({ value: z.string() })).query(async ({ ctx, input }) => {
     const session = ctx.session
     const activity = new Activity(input)

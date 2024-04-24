@@ -31,7 +31,7 @@ const App = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const records = trpc.records.list.useQuery({
+  const records = trpc.record.list.useQuery({
     date,
   })
 

@@ -1,13 +1,13 @@
 import { auth } from "@/auth"
 import { createCallerFactory, router } from ".."
-import { activities } from "./activities"
-import { records } from "./records"
+import { activity } from "./activity"
+import { record } from "./record"
 import { repo } from "./repo"
 
 export const appRouter = router({
   repo,
-  records,
-  activities,
+  record,
+  activity,
 })
 
 export type AppRouter = typeof appRouter

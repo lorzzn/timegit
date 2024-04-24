@@ -43,9 +43,9 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const createMutation = trpc.activities.create.useMutation()
-  const updateMutation = trpc.activities.update.useMutation()
-  const deleteMutation = trpc.activities.delete.useMutation()
+  const createMutation = trpc.activity.create.useMutation()
+  const updateMutation = trpc.activity.update.useMutation()
+  const deleteMutation = trpc.activity.delete.useMutation()
 
   const updateCurrent = (activity: ActivityModel | null = null) => {
     setCurrentActivity(activity)
@@ -59,7 +59,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
     updateCurrent()
   }
 
-  const list = trpc.activities.list.useQuery(
+  const list = trpc.activity.list.useQuery(
     {
       repository_id: repoId,
     },

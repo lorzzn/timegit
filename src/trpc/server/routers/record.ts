@@ -10,7 +10,7 @@ import { z } from "zod"
 import { procedure, router } from ".."
 import { RecordsList } from "../types/records"
 
-export const records = router({
+export const record = router({
   list: procedure
     .input(
       z.object({

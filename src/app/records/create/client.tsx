@@ -34,7 +34,7 @@ const Create = () => {
 
   const { isOpen, onClose, onOpen } = useDisclosure()
 
-  const createMutation = trpc.records.create.useMutation()
+  const createMutation = trpc.record.create.useMutation()
 
   const onStartChange = (time: ZonedDateTime) => {
     setStart(time)
