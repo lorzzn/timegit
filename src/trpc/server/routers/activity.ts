@@ -19,8 +19,8 @@ export const activity = router({
     .input(
       z.object({
         repository_id: z.number(),
-        per_page: z.number().optional(),
-        page: z.number().optional(),
+        page: z.number().default(1),
+        per_page: z.number().default(30),
       }),
     )
     .query(async ({ ctx, input }) => {

@@ -11,10 +11,22 @@ import { procedure, router } from ".."
 import { RecordsList } from "../types/records"
 
 export const record = router({
+  get: procedure.input(z.object({ number: z.number() })).query(async ({ input, ctx }) => {
+    const session = ctx.session
+    const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues/${input.number}`, session?.token)
+    await validateGhapiResponse(response)
+
+    const _data =
+      (await response.json()) as Endpoints["GET /repos/{owner}/{repo}/issues/{issue_number}"]["response"]["data"]
+    const data = pick(_data, ["id", "url", "title", "body", "labels", "created_at", "updated_at", "html_url", "number"])
+    return data as RecordsList[0]
+  }),
   list: procedure
     .input(
       z.object({
         date: dayjsZodUtil,
+        page: z.number().default(1),
+        per_page: z.number().default(30),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -22,13 +34,27 @@ export const record = router({
       const query = buildQuery({
         state: "open",
         labels: [Record.dateToLabelValue(input.date), "timegit"].join(","),
+        sort: "created",
+        direction: "asc",
+        page: input.page,
+        per_page: input.per_page,
       } as Endpoints["GET /repos/{owner}/{repo}/issues"]["parameters"])
 
       const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues?${query}`, session?.token)
       await validateGhapiResponse(response)
       const data = ((await response.json()) as Endpoints["GET /repos/{owner}/{repo}/issues"]["response"]["data"]).map(
         (item) => {
-          const picked = pick(item, ["id", "url", "title", "body", "labels", "created_at", "updated_at", "html_url"])
+          const picked = pick(item, [
+            "id",
+            "url",
+            "title",
+            "body",
+            "labels",
+            "created_at",
+            "updated_at",
+            "html_url",
+            "number",
+          ])
           return {
             ...picked,
           }
@@ -41,7 +67,7 @@ export const record = router({
     .input(
       z.object({
         date: daydate.zodUtil,
-        activities: z.array(Activity.zodUtil),
+        activity: Activity.zodUtil,
         start: daydate.zodUtil,
         end: daydate.zodUtil,
         description: z.string(),
@@ -63,9 +89,9 @@ export const record = router({
   update: procedure
     .input(
       z.object({
-        id: z.number(),
+        number: z.number(),
         date: dayjsZodUtil,
-        activities: z.array(Activity.zodUtil),
+        activity: Activity.zodUtil,
         start: dayjsZodUtil,
         end: dayjsZodUtil,
         description: z.string(),
@@ -75,7 +101,7 @@ export const record = router({
       const session = ctx.session
       const record = new Record(input)
       const body = record.toIssueObject()
-      const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues/${input.id}`, session?.token, {
+      const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues/${input.number}`, session?.token, {
         method: "PATCH",
         body: JSON.stringify(body),
       })

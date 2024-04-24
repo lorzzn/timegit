@@ -9,8 +9,9 @@ import Activity from "./activity"
 
 export type RecordProps = {
   id?: number
+  number?: number
   date: DayDate
-  activities: Activity[]
+  activity?: Activity
   start: DayDate
   end: DayDate
   description: string
@@ -20,26 +21,27 @@ class Record {
   static dateLabelPrefix: string = "@date:"
 
   id: RecordProps["id"]
+  number: RecordProps["number"]
   date: RecordProps["date"]
-  activities: RecordProps["activities"]
+  activity: RecordProps["activity"]
   start: RecordProps["start"]
   end: RecordProps["end"]
   description: RecordProps["description"]
 
   constructor(props: RecordProps) {
     this.validateProps(props)
-    const { date, activities, start, end, description, id } = props
+    const { date, activity, start, end, description, id, number } = props
 
     this.id = id
+    this.number = number
     this.date = daydate(date)
-    this.activities = activities.map(
-      (activity) =>
-        new Activity({
-          ...activity,
-          color: tinycolor(activity.color).toPercentageRgbString(),
-        }),
-    )
-    this.start = daydate(start)
+    ;(this.activity =
+      activity &&
+      new Activity({
+        ...activity,
+        color: tinycolor(activity.color).toPercentageRgbString(),
+      })),
+      (this.start = daydate(start))
     this.end = daydate(end)
     this.description = description
   }
@@ -64,12 +66,8 @@ class Record {
   }
 
   static fromIssueObject(issue: RecordsList[0]): Record {
-    const { body, id } = issue
-    if (!id) {
-      throw new Error("Issue format error")
-    }
-
-    if (!body) {
+    const { body, id, number } = issue
+    if (!id || !body || !number) {
       throw new Error("Issue format error")
     }
 
@@ -93,21 +91,19 @@ class Record {
       description: string
     }
 
-    const activities = labels
-      .filter((label) => label.name?.startsWith(Activity.labelPrefix))
-      .map(
-        (label) =>
-          new Activity({
-            ...label,
-            color: tinycolor(label.color || undefined).toPercentageRgbString(),
-            description: label.description || "",
-          }),
-      )
+    const activity = labels.find((label) => label.name?.startsWith(Activity.labelPrefix))
 
     return new Record({
       id,
+      number,
       date: daydate(date),
-      activities,
+      activity:
+        activity &&
+        new Activity({
+          ...activity,
+          color: tinycolor(String(activity.color)).toHexString(),
+          description: String(activity.description),
+        }),
       start: daydate(start),
       end: daydate(end),
       description: description,
@@ -117,11 +113,7 @@ class Record {
   toIssueObject(): Endpoints["POST /repos/{owner}/{repo}/issues"]["request"]["data"] {
     return {
       title: randomString(8, "Timegit | "),
-      labels: compact([
-        "timegit",
-        Record.dateToLabelValue(this.date),
-        ...this.activities.map((activity) => activity.name),
-      ]),
+      labels: compact(["timegit", Record.dateToLabelValue(this.date), this.activity?.name]),
       body: dump({
         start: this.start.format("YYYY-MM-DD HH:mm:ss"),
         end: this.end.format("YYYY-MM-DD HH:mm:ss"),

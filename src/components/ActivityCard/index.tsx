@@ -18,6 +18,12 @@ type ActivityCardProps = {
   disabledDelete?: boolean
   emptyText?: string
   className?: string
+  pressable?: boolean
+  classNames?: {
+    card?: string
+    cardHeader?: string
+    // ...
+  }
 }
 
 const ActivityCard = ({
@@ -30,6 +36,8 @@ const ActivityCard = ({
   disabledDelete,
   emptyText = "No activity has been specified",
   className,
+  classNames,
+  pressable,
 }: ActivityCardProps) => {
   const colorPickerRef = useRef<ColorPickerModalRef | null>(null)
 
@@ -46,7 +54,7 @@ const ActivityCard = ({
   return (
     <>
       <Card
-        isPressable={!editing}
+        isPressable={pressable ?? !editing}
         onPress={onPress}
         shadow="none"
         className={twclx([
@@ -56,11 +64,12 @@ const ActivityCard = ({
             color: ${fgColor.toPercentageRgbString()};
           `,
           className,
+          classNames?.card,
         ])}
       >
         <If condition={!!activity}>
           <Then>
-            <CardHeader className="text-xl font-medium">
+            <CardHeader className={twclx(["activity-value text-xl font-medium", classNames?.cardHeader])}>
               <If condition={editing}>
                 <Then>
                   <Input

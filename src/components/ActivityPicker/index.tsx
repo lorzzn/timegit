@@ -231,7 +231,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
       <Modal size="sm" isOpen={actionIsOpen} onClose={actionOnClose}>
         <ModalContent>
-          <ModalHeader>Select action</ModalHeader>
+          <ModalHeader>Activity</ModalHeader>
           <ModalBody>
             <Button color="primary" size="lg" onPress={onSelectActionButtonPress}>
               Select

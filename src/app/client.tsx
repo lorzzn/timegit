@@ -1,10 +1,12 @@
 "use client"
 
+import RecordCard from "@/components/RecordCard"
 import { useLayoutContext } from "@/layout/context"
 import Record from "@/models/record"
 import { trpc } from "@/trpc/client"
 import { DayDate, daydate } from "@/utils/daydate"
 import { twclx } from "@/utils/twclx"
+import { css } from "@emotion/css"
 import {
   Button,
   Calendar,
@@ -17,10 +19,11 @@ import {
   ModalFooter,
   ModalHeader,
   Progress,
+  Spacer,
   useDisclosure,
 } from "@nextui-org/react"
 import { RiAddFill } from "@remixicon/react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { When } from "react-if"
 
 const App = () => {
@@ -31,9 +34,14 @@ const App = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const records = trpc.record.list.useQuery({
-    date,
-  })
+  const records = trpc.record.list.useQuery(
+    {
+      date,
+    },
+    {
+      refetchOnWindowFocus: false,
+    },
+  )
 
   // status
   const isEmpty = !records.isFetching && records.isFetched && records.data?.length === 0
@@ -56,6 +64,26 @@ const App = () => {
   const onCreate = () => {
     window.location.href = "/records/create"
   }
+
+  const lineColRenderer = (showdot?: boolean, dotColor?: string) => (
+    <div className="line-col flex justify-center">
+      <div className="line w-[2px] bg-foreground relative">
+        <When condition={showdot}>
+          <div
+            className={twclx([
+              "absolute min-h-3 min-w-3 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground",
+              dotColor &&
+                css`
+                  background-color: ${dotColor};
+                `,
+            ])}
+          />
+        </When>
+      </div>
+    </div>
+  )
+
+  const contentColRenderer = (children: React.ReactNode) => <div className="content-col">{children}</div>
 
   return (
     <>
@@ -83,23 +111,20 @@ const App = () => {
               <span className="flex-1 flex items-center justify-center">No record found.</span>
             </div>
           </When>
-
+          <Spacer y={6} />
           <When condition={!isEmpty}>
-            <div className={twclx(["grid grid-cols-[20px_auto]"])}>
-              <div className={twclx(["border-l-2 border-foreground-300"])}></div>
-              <div className={twclx([""])}>
-                {records.data?.map((record) => {
-                  const t = Record.fromIssueObject(record)
+            {records.data?.map((record) => {
+              const t = Record.fromIssueObject(record)
+              console.log(t)
+              const activityColor = t.activity?.color.toPercentageRgbString()
 
-                  return (
-                    <div key={t.id}>
-                      <div>{t.start.toString()}</div>
-                      <div>{t.description}</div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+              return (
+                <div className="grid grid-cols-[30px_auto]" key={t.id}>
+                  {lineColRenderer(true, activityColor)}
+                  {contentColRenderer(<RecordCard record={t} className="my-3" />)}
+                </div>
+              )
+            })}
           </When>
         </div>
       </div>
@@ -117,6 +142,7 @@ const App = () => {
               value={calendarDate}
               onChange={onCalenderDateChange}
               hideDisabledDates
+              showShadow={false}
             />
           </ModalBody>
           <ModalFooter>
