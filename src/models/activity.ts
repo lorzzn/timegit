@@ -1,7 +1,7 @@
 import tinycolor from "tinycolor2"
 import { z } from "zod"
 
-export type ActivityTypeProps = {
+export type ActivityProps = {
   id?: number
   value?: string
   name?: string // with prefix
@@ -10,16 +10,16 @@ export type ActivityTypeProps = {
   withoutLeadingColor?: string
 }
 
-class ActivityType {
+class Activity {
   static labelPrefix: string = "@activity:"
-  static zodUtil = z.custom<ActivityType>((val) => val instanceof ActivityType && !!val.name, "Invalid activity")
+  static zodUtil = z.custom<Activity>((val) => val instanceof Activity && !!val.name, "Invalid activity")
 
-  id: ActivityTypeProps["id"]
-  value: ActivityTypeProps["value"]
+  id: ActivityProps["id"]
+  value: ActivityProps["value"]
   color: tinycolor.Instance
-  description: ActivityTypeProps["description"]
+  description: ActivityProps["description"]
 
-  constructor(props: ActivityTypeProps) {
+  constructor(props: ActivityProps) {
     this.validateProps(props)
     const { value, color, description, id, name, withoutLeadingColor } = props
 
@@ -37,7 +37,7 @@ class ActivityType {
     }
   }
 
-  private validateProps(props: ActivityTypeProps) {
+  private validateProps(props: ActivityProps) {
     const { description } = props
     if (description && description.length > 100) {
       throw new Error("Label description is too long")
@@ -45,14 +45,14 @@ class ActivityType {
   }
 
   get name() {
-    return ActivityType.labelPrefix + this.value
+    return Activity.labelPrefix + this.value
   }
 
   set name(str: string) {
-    if (!str.startsWith(ActivityType.labelPrefix)) {
+    if (!str.startsWith(Activity.labelPrefix)) {
       throw Error("Invalid label value")
     }
-    this.value = str.replace(ActivityType.labelPrefix, "")
+    this.value = str.replace(Activity.labelPrefix, "")
   }
 
   get withoutLeadingColor(): string | undefined {
@@ -63,8 +63,8 @@ class ActivityType {
     this.color = tinycolor(str)
   }
 
-  update(props: Partial<ActivityTypeProps>) {
-    return new ActivityType({ ...this, ...props })
+  update(props: Partial<ActivityProps>) {
+    return new Activity({ ...this, ...props })
   }
 
   toObject() {
@@ -78,4 +78,4 @@ class ActivityType {
   }
 }
 
-export default ActivityType
+export default Activity

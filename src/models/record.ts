@@ -3,11 +3,11 @@ import { randomString } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
 import { dump } from "js-yaml"
 import { compact } from "lodash"
-import ActivityType from "./activityType"
+import Activity from "./activity"
 
-export type UserActivityProps = {
+export type RecordProps = {
   date: DayDate | string | number
-  activity: ActivityType | null
+  activity: Activity | null
 
   start: DayDate | string | number
   end: DayDate | string | number
@@ -15,18 +15,18 @@ export type UserActivityProps = {
   description?: string
 }
 
-class UserActivity {
+class Record {
   static dateLabelPrefix: string = "@date:"
 
   date: DayDate
-  activity: UserActivityProps["activity"]
+  activity: RecordProps["activity"]
 
   start: DayDate
   end: DayDate
 
-  description: UserActivityProps["description"]
+  description: RecordProps["description"]
 
-  constructor(props: UserActivityProps) {
+  constructor(props: RecordProps) {
     this.validateProps(props)
     const { date, activity, start, end, description } = props
 
@@ -37,7 +37,7 @@ class UserActivity {
     this.description = description
   }
 
-  private validateProps(props: UserActivityProps): void {
+  private validateProps(props: RecordProps): void {
     const { date, start, end } = props
     if (!daydate(date).isValid()) {
       throw new Error("Invalid date")
@@ -53,13 +53,13 @@ class UserActivity {
   }
 
   static dateToLabelValue(date: DayDate) {
-    return `${UserActivity.dateLabelPrefix}${date.year()}-${date.month() + 1}-${date.date()}`
+    return `${Record.dateLabelPrefix}${date.year()}-${date.month() + 1}-${date.date()}`
   }
 
   toIssueObject(): Endpoints["POST /repos/{owner}/{repo}/issues"]["request"]["data"] {
     return {
       title: randomString(8, "Timegit | "),
-      labels: compact(["timegit", UserActivity.dateToLabelValue(this.date), this.activity?.name]),
+      labels: compact(["timegit", Record.dateToLabelValue(this.date), this.activity?.name]),
       body: dump({
         start: this.start.format("YYYY-MM-DD HH:mm:ss"),
         end: this.end.format("YYYY-MM-DD HH:mm:ss"),
@@ -69,4 +69,4 @@ class UserActivity {
   }
 }
 
-export default UserActivity
+export default Record

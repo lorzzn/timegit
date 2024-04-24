@@ -28,10 +28,10 @@ const App = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const userActivities = trpc.userActivities.list.useQuery({
+  const records = trpc.records.list.useQuery({
     date,
   })
-  const mut = trpc.userActivities.create.useMutation()
+  const mut = trpc.records.create.useMutation()
 
   const showCalendarModal = () => {
     setCalendarDate(date.toCalendarDate())
@@ -48,7 +48,7 @@ const App = () => {
   }
 
   const onCreate = () => {
-    window.location.href = "/user/activities/create"
+    window.location.href = "/records/create"
   }
 
   return (
@@ -64,7 +64,7 @@ const App = () => {
           </Button>
         </div>
 
-        {userActivities.isFetching && <Progress size="sm" isIndeterminate aria-label="Fetching..." />}
+        {records.isFetching && <Progress size="sm" isIndeterminate aria-label="Fetching..." />}
         <Divider />
 
         <div className="flex-1 flex flex-col"></div>

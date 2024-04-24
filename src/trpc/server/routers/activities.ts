@@ -1,11 +1,11 @@
-import ActivityType from "@/models/activityType"
+import Activity from "@/models/activity"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
 import { buildQuery } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
 import { z } from "zod"
 import { procedure, router } from ".."
 
-export const activityTypes = router({
+export const activities = router({
   list: procedure
     .input(
       z.object({
@@ -17,7 +17,7 @@ export const activityTypes = router({
 
       const query = buildQuery({
         repository_id: input.repository_id,
-        q: ActivityType.labelPrefix,
+        q: Activity.labelPrefix,
       })
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
@@ -30,7 +30,7 @@ export const activityTypes = router({
     .input(z.object({ name: z.string(), color: z.string().optional(), description: z.string().max(100).optional() }))
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session
-      const activity = new ActivityType(input)
+      const activity = new Activity(input)
 
       const body: Endpoints["POST /repos/{owner}/{repo}/labels"]["request"]["data"] = {
         name: activity.name,
@@ -58,7 +58,7 @@ export const activityTypes = router({
     )
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session
-      const activity = new ActivityType(input)
+      const activity = new Activity(input)
 
       const body: Omit<
         Endpoints["PATCH /repos/{owner}/{repo}/labels/{name}"]["parameters"],
@@ -84,7 +84,7 @@ export const activityTypes = router({
     }),
   delete: procedure.input(z.object({ name: z.string() })).mutation(async ({ ctx, input }) => {
     const session = ctx.session
-    const activity = new ActivityType(input)
+    const activity = new Activity(input)
 
     const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/labels/${activity.name}`, session?.token, {
       method: "DELETE",

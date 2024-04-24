@@ -1,5 +1,5 @@
-import ActivityType from "@/models/activityType"
-import UserActivity from "@/models/userActivity"
+import Activity from "@/models/activity"
+import Record from "@/models/record"
 import { dayjsZodUtil } from "@/utils/date"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
 import { buildGhapiQuery, buildQuery } from "@/utils/stringFuncs"
@@ -7,7 +7,7 @@ import { Endpoints } from "@octokit/types"
 import { z } from "zod"
 import { procedure, router } from ".."
 
-export const userActivities = router({
+export const records = router({
   list: procedure
     .input(
       z.object({
@@ -18,7 +18,7 @@ export const userActivities = router({
       const session = ctx.session
       const query = buildQuery({
         q: buildGhapiQuery({
-          label: UserActivity.dateToLabelValue(input.date),
+          label: Record.dateToLabelValue(input.date),
           repo: getUserTimegitRepoPath(session),
           is: "open",
         }),
@@ -34,15 +34,15 @@ export const userActivities = router({
     .input(
       z.object({
         date: dayjsZodUtil,
-        activity: ActivityType.zodUtil.nullable(),
+        activity: Activity.zodUtil.nullable(),
         start: dayjsZodUtil,
         end: dayjsZodUtil,
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const session = ctx.session
-      const userActivity = new UserActivity(input)
-      const body = userActivity.toIssueObject()
+      const record = new Record(input)
+      const body = record.toIssueObject()
       const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues`, session?.token, {
         method: "POST",
         body: JSON.stringify(body),
@@ -60,15 +60,15 @@ export const userActivities = router({
       z.object({
         id: z.number(),
         date: dayjsZodUtil,
-        activity: ActivityType.zodUtil.nullable(),
+        activity: Activity.zodUtil.nullable(),
         start: dayjsZodUtil,
         end: dayjsZodUtil,
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const session = ctx.session
-      const userActivity = new UserActivity(input)
-      const body = userActivity.toIssueObject()
+      const record = new Record(input)
+      const body = record.toIssueObject()
       const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues/${input.id}`, session?.token, {
         method: "PATCH",
         body: JSON.stringify(body),

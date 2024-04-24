@@ -1,4 +1,4 @@
-import ActivityType from "@/models/activityType"
+import Activity from "@/models/activity"
 import { twclx } from "@/utils/twclx"
 import { css } from "@emotion/css"
 import { Button, Card, CardBody, CardFooter, CardHeader, Input, Textarea } from "@nextui-org/react"
@@ -8,37 +8,37 @@ import { Else, If, Then, When } from "react-if"
 import tinycolor from "tinycolor2"
 import ColorPickerModal, { ColorPickerModalRef } from "../ColorPickerModal"
 
-type ActivityTypeCardProps = {
-  activityType?: ActivityType | null
+type ActivityCardProps = {
+  activity?: Activity | null
   editing?: boolean
   onPress?: () => void
-  onSave?: (activityType: ActivityType) => void
-  onChange?: (activityType?: ActivityType | null) => void
+  onSave?: (activity: Activity) => void
+  onChange?: (activity?: Activity | null) => void
   onDelete?: () => void
   disabledDelete?: boolean
   emptyText?: string
 }
 
-const ActivityTypeCard = ({
-  activityType: propActivityType,
+const ActivityCard = ({
+  activity: propActivity,
   onPress,
   editing,
   onSave,
   onChange,
   onDelete,
   disabledDelete,
-  emptyText = "No activity type has been specified, click me to add.",
-}: ActivityTypeCardProps) => {
-  const [activityType, setActivityType] = useState<ActivityType | undefined | null>(propActivityType)
+  emptyText = "No activity has been specified, click me to choose.",
+}: ActivityCardProps) => {
+  const [activity, setActivity] = useState<Activity | undefined | null>(propActivity)
 
   const colorPickerRef = useRef<ColorPickerModalRef | null>(null)
 
-  const updateActivityType = (key: keyof ActivityType, value: any) => {
-    const val = activityType?.update({
+  const updateActivity = (key: keyof Activity, value: any) => {
+    const val = activity?.update({
       [key]: value,
     })
     onChange?.(val)
-    setActivityType(val)
+    setActivity(val)
   }
 
   return (
@@ -49,12 +49,12 @@ const ActivityTypeCard = ({
         shadow="sm"
         className={twclx([
           css`
-            background-color: #${activityType?.withoutLeadingColor};
-            color: ${tinycolor(activityType?.color).isDark() ? "white" : "black"};
+            background-color: #${activity?.withoutLeadingColor};
+            color: ${tinycolor(activity?.color).isDark() ? "white" : "black"};
           `,
         ])}
       >
-        <If condition={!!activityType}>
+        <If condition={!!activity}>
           <Then>
             <CardHeader className="text-xl font-medium">
               <If condition={editing}>
@@ -62,11 +62,11 @@ const ActivityTypeCard = ({
                   <Input
                     label="Name"
                     required
-                    value={activityType?.value}
-                    onValueChange={(value) => updateActivityType("value", value)}
+                    value={activity?.value}
+                    onValueChange={(value) => updateActivity("value", value)}
                   />
                 </Then>
-                <Else>{activityType?.value}</Else>
+                <Else>{activity?.value}</Else>
               </If>
             </CardHeader>
 
@@ -77,16 +77,16 @@ const ActivityTypeCard = ({
                     <Textarea
                       label="Description"
                       maxLength={100}
-                      value={activityType?.description}
-                      onValueChange={(value) => updateActivityType("description", value)}
+                      value={activity?.description}
+                      onValueChange={(value) => updateActivity("description", value)}
                     />
-                    <When condition={activityType?.description}>
-                      <span className="ml-auto text-sm mt-1 mr-1">{activityType?.description?.length}/100</span>
+                    <When condition={activity?.description}>
+                      <span className="ml-auto text-sm mt-1 mr-1">{activity?.description?.length}/100</span>
                     </When>
                   </div>
                 </Then>
                 <Else>
-                  <div className={twclx([{ "pb-3": activityType?.description }])}>{activityType?.description}</div>
+                  <div className={twclx([{ "pb-3": activity?.description }])}>{activity?.description}</div>
                 </Else>
               </If>
             </CardBody>
@@ -109,7 +109,7 @@ const ActivityTypeCard = ({
                     <span>Delete</span>
                   </Button>
                 </When>
-                <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activityType!)}>
+                <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activity!)}>
                   <RiSaveFill size={"1.1rem"} />
                   <span>Save</span>
                 </Button>
@@ -118,16 +118,16 @@ const ActivityTypeCard = ({
           </Then>
         </If>
 
-        <When condition={!activityType}>
+        <When condition={!activity}>
           <CardBody className="flex justify-center items-center">
             <span className="flex-1 flex items-center justify-center text-foreground-400 text-center">{emptyText}</span>
           </CardBody>
         </When>
       </Card>
 
-      <ColorPickerModal ref={colorPickerRef} onChange={(value) => updateActivityType("color", value.toHexString())} />
+      <ColorPickerModal ref={colorPickerRef} onChange={(value) => updateActivity("color", value.toHexString())} />
     </>
   )
 }
 
-export default ActivityTypeCard
+export default ActivityCard

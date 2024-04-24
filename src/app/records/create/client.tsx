@@ -1,6 +1,6 @@
 "use client"
 
-import ActivityTypePicker from "@/components/ActivityTypePicker"
+import ActivityPicker from "@/components/ActivityPicker"
 import { useLayoutContext } from "@/layout/context"
 import { daydate } from "@/utils/daydate"
 import { twclx } from "@/utils/twclx"
@@ -26,29 +26,29 @@ const Create = () => {
   return (
     <div className="flex-1 flex flex-col">
       <div className="text-2xl py-3 flex items-center justify-between">
-        <div>Create an activity</div>
+        <div>Create a record</div>
         <Button color="primary" size="md" className="px-8">
           Confirm
         </Button>
       </div>
       <Divider className="my-3" />
 
-      <div className="text-lg py-3">Input start and end time</div>
+      <div className="text-lg py-3">Start and end time</div>
       <TimeInput hourCycle={24} isRequired label="Start Time" value={start} onChange={onStartChange} />
       <Divider className="my-3" />
       <TimeInput hourCycle={24} isRequired label="End Time" value={end} onChange={onEndChange} />
       <Divider className="my-3" />
 
       <div className="text-lg py-3 flex items-center justify-between">
-        <div>Pick an activity type</div>
-        <Button size="sm" isIconOnly variant="light" radius="full" title="remove activity type">
+        <div>Pick an activity</div>
+        <Button size="sm" isIconOnly variant="light" radius="full" title="remove activity">
           <RiCloseFill />
         </Button>
       </div>
-      <ActivityTypePicker />
+      <ActivityPicker />
 
       <Divider className="my-3" />
-      <div className="text-lg py-3">Activity description</div>
+      <div className="text-lg py-3">Description</div>
 
       <Textarea
         classNames={{

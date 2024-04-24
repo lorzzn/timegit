@@ -1,5 +1,5 @@
 import { useLayoutContext } from "@/layout/context"
-import ActivityTypeModel from "@/models/activityType"
+import ActivityModel from "@/models/activity"
 import useLayoutStore from "@/stores/layout"
 import { trpc } from "@/trpc/client"
 import { twclx } from "@/utils/twclx"
@@ -16,30 +16,30 @@ import {
 import { RiAddFill, RiArrowLeftLine, RiRefreshLine } from "@remixicon/react"
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import { Else, If, Then, When } from "react-if"
-import ActivityTypeCard from "../ActivityTypeCard"
+import ActivityCard from "../ActivityCard"
 
-export type ActivityTypePickerProps = {
-  onConfirm?: (activityType?: ActivityTypeModel | null) => void
+export type ActivityPickerProps = {
+  onConfirm?: (activity?: ActivityModel | null) => void
 }
 
-export type ActivityTypePickerRef = {
+export type ActivityPickerRef = {
   onOpen: () => void
   onClose: () => void
 }
 
-export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityTypePickerProps>(({ onConfirm }, ref) => {
+export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>(({ onConfirm }, ref) => {
   const widthClass = useLayoutStore((s) => s.widthClass)
 
   const { isOpen, onOpen, onClose: _onclose } = useDisclosure()
   const { isOpen: actionIsOpen, onOpen: actionOnOpen, onClose: actionOnClose } = useDisclosure()
 
-  const createMutation = trpc.activityTypes.create.useMutation()
-  const updateMutation = trpc.activityTypes.update.useMutation()
-  const deleteMutation = trpc.activityTypes.delete.useMutation()
+  const createMutation = trpc.activities.create.useMutation()
+  const updateMutation = trpc.activities.update.useMutation()
+  const deleteMutation = trpc.activities.delete.useMutation()
 
   const resetModal = () => {
-    setCurrentlyActivityType(null)
-    setEditingActivityType(null)
+    setCurrentlyActivity(null)
+    setEditingActivity(null)
     setIsEditing(false)
   }
 
@@ -52,12 +52,12 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   const { repo } = useLayoutContext()
   const repoId = repo?.id || 0
 
-  const [currentlyActivityType, setCurrentlyActivityType] = useState<ActivityTypeModel | null>()
-  const [editingActivityType, setEditingActivityType] = useState<ActivityTypeModel | null>()
+  const [currentlyActivity, setCurrentlyActivity] = useState<ActivityModel | null>()
+  const [editingActivity, setEditingActivity] = useState<ActivityModel | null>()
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const activityTypes = trpc.activityTypes.list.useQuery(
+  const activitys = trpc.activities.list.useQuery(
     {
       repository_id: repoId,
     },
@@ -68,41 +68,41 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   )
 
   // status
-  const isEmpty = !activityTypes.isFetching && activityTypes.isFetched && activityTypes.data?.total_count === 0
-  const isFetching = activityTypes.isFetching
+  const isEmpty = !activitys.isFetching && activitys.isFetched && activitys.data?.total_count === 0
+  const isFetching = activitys.isFetching
 
   useEffect(() => {
     resetModal()
   }, [isFetching])
 
   const onCreateButtonPress = () => {
-    setCurrentlyActivityType(new ActivityTypeModel({}))
+    setCurrentlyActivity(new ActivityModel({}))
     setIsEditing(true)
   }
 
-  const onActivityTypeDelete = async () => {
-    if (!currentlyActivityType?.name) return
+  const onActivityDelete = async () => {
+    if (!currentlyActivity?.name) return
 
     await deleteMutation.mutateAsync({
-      name: currentlyActivityType.name,
+      name: currentlyActivity.name,
     })
     setTimeout(() => {
-      activityTypes.refetch()
+      activitys.refetch()
     }, 1000)
   }
 
-  const onActivityTypeSave = async (value: ActivityTypeModel) => {
+  const onActivitySave = async (value: ActivityModel) => {
     if (!value.id) {
       await createMutation.mutateAsync(value.toObject())
     } else {
-      if (!editingActivityType) return
+      if (!editingActivity) return
       await updateMutation.mutateAsync({
-        ...editingActivityType.toObject(),
+        ...editingActivity.toObject(),
         new_name: value.name,
       })
     }
     setTimeout(() => {
-      activityTypes.refetch()
+      activitys.refetch()
     }, 1000)
   }
 
@@ -112,7 +112,7 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   }))
 
   const onSelectActionButtonPress = () => {
-    onConfirm?.(currentlyActivityType)
+    onConfirm?.(currentlyActivity)
     resetModal()
     onClose()
   }
@@ -124,38 +124,38 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
 
   return (
     <>
-      <ActivityTypeCard activityType={currentlyActivityType} onPress={onOpen} />
+      <ActivityCard activity={currentlyActivity} onPress={onOpen} />
 
       <Modal size="full" isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalHeader>Select an activity type</ModalHeader>
+          <ModalHeader>Select an activity</ModalHeader>
 
           <ModalBody className={twclx(["min-h-36 flex flex-col relative items-center"])}>
             <div className={twclx([widthClass])}>
               {/* activities list */}
               <When condition={!isEmpty}>
                 <div className="flex flex-col space-y-3">
-                  {activityTypes.data?.items.map((activityType) => {
-                    const t = new ActivityTypeModel({
-                      name: activityType.name,
-                      id: activityType.id,
-                      color: activityType.color,
-                      description: activityType.description || undefined,
+                  {activitys.data?.items.map((activity) => {
+                    const t = new ActivityModel({
+                      name: activity.name,
+                      id: activity.id,
+                      color: activity.color,
+                      description: activity.description || undefined,
                     })
 
                     return (
-                      <ActivityTypeCard
-                        key={activityType.id}
-                        activityType={t}
-                        editing={isEditing && activityType.id === currentlyActivityType?.id}
+                      <ActivityCard
+                        key={activity.id}
+                        activity={t}
+                        editing={isEditing && activity.id === currentlyActivity?.id}
                         onPress={() => {
-                          setEditingActivityType(t)
-                          setCurrentlyActivityType(t)
+                          setEditingActivity(t)
+                          setCurrentlyActivity(t)
                           actionOnOpen()
                         }}
-                        onDelete={onActivityTypeDelete}
-                        onChange={(value) => setCurrentlyActivityType(value)}
-                        onSave={(value) => onActivityTypeSave(value)}
+                        onDelete={onActivityDelete}
+                        onChange={(value) => setCurrentlyActivity(value)}
+                        onSave={(value) => onActivitySave(value)}
                       />
                     )
                   })}
@@ -163,22 +163,22 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
               </When>
 
               {/* here is creat at., show the card for editing */}
-              <If condition={isEditing && !currentlyActivityType?.id}>
+              <If condition={isEditing && !currentlyActivity?.id}>
                 <Then>
                   <div className="my-3">
-                    <ActivityTypeCard
+                    <ActivityCard
                       editing
-                      activityType={currentlyActivityType}
-                      onDelete={onActivityTypeDelete}
-                      onChange={(value) => setCurrentlyActivityType(value)}
-                      onSave={(value) => onActivityTypeSave(value)}
+                      activity={currentlyActivity}
+                      onDelete={onActivityDelete}
+                      onChange={(value) => setCurrentlyActivity(value)}
+                      onSave={(value) => onActivitySave(value)}
                     />
                   </div>
                 </Then>
                 <Else>
                   <Button variant="bordered" size="lg" className="w-full !py-10 !my-3" onPress={onCreateButtonPress}>
                     <RiAddFill />
-                    <span>Create an activity type</span>
+                    <span>Create an activity</span>
                   </Button>
                 </Else>
               </If>
@@ -205,7 +205,7 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
               color="default"
               variant="light"
               onPress={() => {
-                activityTypes.refetch()
+                activitys.refetch()
               }}
             >
               <RiRefreshLine />
@@ -233,6 +233,6 @@ export const ActivityTypePicker = forwardRef<ActivityTypePickerRef, ActivityType
   )
 })
 
-ActivityTypePicker.displayName = "ActivityTypePicker"
+ActivityPicker.displayName = "ActivityPicker"
 
-export default ActivityTypePicker
+export default ActivityPicker
