@@ -25,15 +25,17 @@ class Activity {
   value: ActivityProps["value"]
   color: tinycolor.Instance
   description: ActivityProps["description"]
+  updated: boolean
 
-  constructor(props: ActivityProps) {
+  constructor(props: ActivityProps & { updated?: boolean }) {
     this.validateProps(props)
-    const { value, color, description, id, name } = props
+    const { value, color, description, id, name, updated } = props
 
     this.id = id
     this.value = value
     this.color = tinycolor(color)
     this.description = description
+    this.updated = updated ?? false
 
     if (name) {
       this.name = name
@@ -59,7 +61,7 @@ class Activity {
   }
 
   update(props: Partial<ActivityProps>) {
-    return new Activity({ ...this, ...props })
+    return new Activity({ ...this, ...props, updated: true })
   }
 
   toObject(callbackFunc: (obj: ActivityObject) => any = (obj) => obj) {

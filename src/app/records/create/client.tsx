@@ -2,6 +2,7 @@
 
 import ActivityPicker from "@/components/ActivityPicker"
 import { useLayoutContext } from "@/layout/context"
+import Activity from "@/models/activity"
 import { daydate } from "@/utils/daydate"
 import { twclx } from "@/utils/twclx"
 import { ZonedDateTime } from "@internationalized/date"
@@ -14,6 +15,7 @@ const Create = () => {
   const today = daydate(serverDate)
   const [start, setStart] = useState(today.toZonedDateTime())
   const [end, setEnd] = useState(today.toZonedDateTime())
+  const [activity, setActivity] = useState<Activity | null>()
 
   const onStartChange = (time: ZonedDateTime) => {
     setStart(time)
@@ -41,11 +43,18 @@ const Create = () => {
 
       <div className="text-lg py-3 flex items-center justify-between">
         <div>Pick an activity</div>
-        <Button size="sm" isIconOnly variant="light" radius="full" title="remove activity">
+        <Button
+          size="sm"
+          isIconOnly
+          variant="light"
+          radius="full"
+          title="remove activity"
+          onPress={() => setActivity(null)}
+        >
           <RiCloseFill />
         </Button>
       </div>
-      <ActivityPicker />
+      <ActivityPicker value={activity} onConfirm={setActivity} />
 
       <Divider className="my-3" />
       <div className="text-lg py-3">Description</div>

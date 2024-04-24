@@ -1,9 +1,9 @@
 import Activity from "@/models/activity"
 import { twclx } from "@/utils/twclx"
 import { css } from "@emotion/css"
-import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Input, Textarea } from "@nextui-org/react"
+import { Button, Card, CardBody, CardFooter, CardHeader, Input, Textarea } from "@nextui-org/react"
 import { RiDeleteBin2Fill, RiSaveFill } from "@remixicon/react"
-import { useRef, useState } from "react"
+import { useRef } from "react"
 import { Else, If, Then, When } from "react-if"
 import tinycolor from "tinycolor2"
 import ColorPickerModal, { ColorPickerModalRef } from "../ColorPickerModal"
@@ -17,20 +17,20 @@ type ActivityCardProps = {
   onDelete?: () => void
   disabledDelete?: boolean
   emptyText?: string
+  className?: string
 }
 
 const ActivityCard = ({
-  activity: propActivity,
+  activity,
   onPress,
   editing,
   onSave,
   onChange,
   onDelete,
   disabledDelete,
-  emptyText = "No activity has been specified, click me to choose.",
+  emptyText = "No activity has been specified",
+  className,
 }: ActivityCardProps) => {
-  const [activity, setActivity] = useState<Activity | undefined | null>(propActivity)
-
   const colorPickerRef = useRef<ColorPickerModalRef | null>(null)
 
   const updateActivity = (key: keyof Activity, value: any) => {
@@ -38,20 +38,24 @@ const ActivityCard = ({
       [key]: value,
     })
     onChange?.(val)
-    setActivity(val)
   }
+
+  const bgColor = tinycolor(activity?.color)
+  const fgColor = tinycolor(bgColor.isDark() ? "white" : "black")
 
   return (
     <>
       <Card
         isPressable={!editing}
         onPress={onPress}
-        shadow="sm"
+        shadow="none"
         className={twclx([
+          "break-all text-start",
           css`
-            background-color: #${activity?.withoutLeadingColor};
-            color: ${tinycolor(activity?.color).isDark() ? "white" : "black"};
+            background-color: ${bgColor.toPercentageRgbString()};
+            color: ${fgColor.toPercentageRgbString()};
           `,
+          className,
         ])}
       >
         <If condition={!!activity}>
@@ -90,11 +94,10 @@ const ActivityCard = ({
             </CardBody>
 
             <When condition={editing}>
-              <Divider />
               <CardFooter className="flex">
                 <Button
                   className="ml-auto bg-gradient-to-tr from-[#c43646] to-[#d876e3] text-white shadow-lg"
-                  size="md"
+                  size="sm"
                   color="default"
                   onPress={() => {
                     colorPickerRef.current?.onOpen()
@@ -103,12 +106,12 @@ const ActivityCard = ({
                   Change Color
                 </Button>
                 <When condition={!disabledDelete}>
-                  <Button className="ml-3" color="danger" onPress={onDelete}>
+                  <Button className="ml-3" color="danger" size="sm" onPress={onDelete}>
                     <RiDeleteBin2Fill size={"1.1rem"} />
                     <span>Delete</span>
                   </Button>
                 </When>
-                <Button className="ml-3" size="md" color="primary" onPress={() => onSave?.(activity!)}>
+                <Button className="ml-3" color="primary" size="sm" onPress={() => activity && onSave?.(activity)}>
                   <RiSaveFill size={"1.1rem"} />
                   <span>Save</span>
                 </Button>

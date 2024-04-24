@@ -104,9 +104,14 @@ export const activities = router({
     const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/labels/${activity.name}`, session?.token, {
       method: "DELETE",
     })
-    await validateGhapiResponse(response)
-    const data = (await response.json()) as Endpoints["DELETE /repos/{owner}/{repo}/labels/{name}"]["response"]["data"]
+    if (response.status === 204) {
+      return true
+    } else {
+      await validateGhapiResponse(response)
+      const data =
+        (await response.json()) as Endpoints["DELETE /repos/{owner}/{repo}/labels/{name}"]["response"]["data"]
 
-    return data
+      return data
+    }
   }),
 })

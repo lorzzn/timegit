@@ -20,6 +20,7 @@ import { Else, If, Then, When } from "react-if"
 import ActivityCard from "../ActivityCard"
 
 export type ActivityPickerProps = {
+  value?: ActivityModel | null
   onConfirm?: (activity?: ActivityModel | null) => void
 }
 
@@ -28,7 +29,7 @@ export type ActivityPickerRef = {
   onClose: () => void
 }
 
-export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>(({ onConfirm }, ref) => {
+export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>(({ onConfirm, value }, ref) => {
   const widthClass = useLayoutStore((s) => s.widthClass)
 
   const { isOpen, onOpen, onClose: _onclose } = useDisclosure()
@@ -38,7 +39,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const repoId = repo?.id || 0
 
   const [currentActivity, setCurrentActivity] = useState<ActivityModel | null>()
-  const [currentEditingActivity, setCurrentEditingActivity] = useState<ActivityModel | null>()
+  const [currentActivityRawData, setCurrentActivityRawData] = useState<ActivityModel | null>()
 
   const [isEditing, setIsEditing] = useState(false)
 
@@ -48,7 +49,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   const updateCurrent = (activity: ActivityModel | null = null) => {
     setCurrentActivity(activity)
-    setCurrentEditingActivity(activity)
+    setCurrentActivityRawData(activity)
     setIsEditing(false)
   }
 
@@ -58,7 +59,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
     updateCurrent()
   }
 
-  const activitys = trpc.activities.list.useQuery(
+  const list = trpc.activities.list.useQuery(
     {
       repository_id: repoId,
     },
@@ -69,8 +70,8 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   )
 
   // status
-  const isEmpty = !activitys.isFetching && activitys.isFetched && activitys.data?.total_count === 0
-  const isFetching = activitys.isFetching
+  const isEmpty = !list.isFetching && list.isFetched && list.data?.total_count === 0
+  const isFetching = list.isFetching
 
   useEffect(() => {
     updateCurrent()
@@ -90,26 +91,31 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
     await deleteMutation.mutateAsync({
       name: currentActivity.name,
     })
-    setTimeout(() => {
-      activitys.refetch()
-    }, 1000)
+    list.refetch()
   }
 
-  const onActivitySave = async (value: ActivityModel) => {
-    if (!value.id) {
-      // create
-      await createMutation.mutateAsync(value.toObject((val) => pick(val, ["name", "color", "description"])))
+  const onActivitySave = async (activity: ActivityModel) => {
+    if (activity.id) {
+      if (activity.updated && currentActivityRawData) {
+        const res = await updateMutation.mutateAsync({
+          ...activity.toObject((val) => ({
+            new_name: val.name,
+            color: val.color,
+            description: val.description,
+          })),
+          name: currentActivityRawData.name,
+        })
+        if (res.id === value?.id) {
+          onConfirm?.(activity)
+        }
+        list.refetch()
+      } else {
+        updateCurrent()
+      }
     } else {
-      // updade
-      if (!currentEditingActivity) return
-      await updateMutation.mutateAsync({
-        ...currentEditingActivity.toObject(),
-        new_name: value.name,
-      })
+      await createMutation.mutateAsync(activity.toObject((val) => pick(val, ["name", "color", "description"])))
+      list.refetch()
     }
-    setTimeout(() => {
-      activitys.refetch()
-    }, 1000)
   }
 
   useImperativeHandle(ref, () => ({
@@ -130,7 +136,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   return (
     <>
-      <ActivityCard activity={currentActivity} onPress={onOpen} />
+      <ActivityCard activity={value} onPress={onOpen} className={twclx([{ "!bg-foreground-100": !value }])} />
 
       <Modal size="full" isOpen={isOpen} onClose={onClose}>
         <ModalContent>
@@ -141,19 +147,20 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
               {/* activities list */}
               <When condition={!isEmpty}>
                 <div className="flex flex-col space-y-3">
-                  {activitys.data?.items.map((activity) => {
+                  {list.data?.items.map((item) => {
                     const t = new ActivityModel({
-                      name: activity.name,
-                      id: activity.id,
-                      color: activity.color,
-                      description: activity.description || undefined,
+                      name: item.name,
+                      id: item.id,
+                      color: item.color,
+                      description: item.description || undefined,
                     })
+                    const editing = isEditing && t.id === currentActivity?.id
 
                     return (
                       <ActivityCard
-                        key={activity.id}
-                        activity={t}
-                        editing={isEditing && activity.id === currentActivity?.id}
+                        key={t.id}
+                        activity={editing ? currentActivity : t}
+                        editing={editing}
                         onPress={() => {
                           updateCurrent(t)
                           actionOnOpen()
@@ -210,7 +217,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
               color="default"
               variant="light"
               onPress={() => {
-                activitys.refetch()
+                list.refetch()
               }}
             >
               <RiRefreshLine />
