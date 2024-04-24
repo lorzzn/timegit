@@ -124,7 +124,11 @@ const ActivityCard = ({
         </When>
       </Card>
 
-      <ColorPickerModal ref={colorPickerRef} onChange={(value) => updateActivity("color", value.toHexString())} />
+      <ColorPickerModal
+        ref={colorPickerRef}
+        defaultColor={activity?.color.toHexString()}
+        onChange={(value) => updateActivity("color", value.toHexString())}
+      />
     </>
   )
 }

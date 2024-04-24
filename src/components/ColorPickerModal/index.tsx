@@ -14,6 +14,7 @@ import {
 import ColorPicker, { BaseColorPickerProps, Color } from "@rc-component/color-picker"
 import { debounce } from "lodash"
 import { forwardRef, useImperativeHandle, useState } from "react"
+import tinycolor from "tinycolor2"
 
 export type ColorPickerModalProps = BaseColorPickerProps & {
   defaultColor?: string
@@ -27,7 +28,7 @@ export type ColorPickerModalRef = {
 const ColorPickerModal = forwardRef<ColorPickerModalRef, ColorPickerModalProps>(
   ({ onChange, onChangeComplete, defaultColor }, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const [color, setColor] = useState<string>("#ffffff")
+    const [color, setColor] = useState<string>(tinycolor(defaultColor).toHexString())
 
     const onColorPickerChange: BaseColorPickerProps["onChange"] = debounce(
       (color) => {
@@ -39,12 +40,12 @@ const ColorPickerModal = forwardRef<ColorPickerModalRef, ColorPickerModalProps>(
     )
 
     const onInputColorValueChange = (value: string) => {
+      onChange?.(new Color(tinycolor(value).toHexString()))
       setColor(value)
     }
 
     const onPresetButtonPress = (color: string) => () => {
-      setColor(color)
-      onChange?.(new Color(color))
+      onInputColorValueChange(color)
     }
 
     useImperativeHandle(ref, () => ({
