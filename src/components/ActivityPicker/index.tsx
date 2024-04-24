@@ -34,10 +34,6 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const { isOpen, onOpen, onClose: _onclose } = useDisclosure()
   const { isOpen: actionIsOpen, onOpen: actionOnOpen, onClose: actionOnClose } = useDisclosure()
 
-  const createMutation = trpc.activities.create.useMutation()
-  const updateMutation = trpc.activities.update.useMutation()
-  const deleteMutation = trpc.activities.delete.useMutation()
-
   const { repo } = useLayoutContext()
   const repoId = repo?.id || 0
 
@@ -45,6 +41,10 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const [currentEditingActivity, setCurrentEditingActivity] = useState<ActivityModel | null>()
 
   const [isEditing, setIsEditing] = useState(false)
+
+  const createMutation = trpc.activities.create.useMutation()
+  const updateMutation = trpc.activities.update.useMutation()
+  const deleteMutation = trpc.activities.delete.useMutation()
 
   const updateCurrent = (activity: ActivityModel | null = null) => {
     setCurrentActivity(activity)
@@ -97,8 +97,10 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   const onActivitySave = async (value: ActivityModel) => {
     if (!value.id) {
+      // create
       await createMutation.mutateAsync(value.toObject((val) => pick(val, ["name", "color", "description"])))
     } else {
+      // updade
       if (!currentEditingActivity) return
       await updateMutation.mutateAsync({
         ...currentEditingActivity.toObject(),
