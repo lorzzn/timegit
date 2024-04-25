@@ -1,5 +1,7 @@
+import { auth } from "@/auth"
 import Layout from "@/layout"
 import { LayoutContextProvider } from "@/layout/context"
+import { getPathname } from "@/middleware"
 import { TRPCGhapiError } from "@/trpc/errors/ghapi"
 import { caller } from "@/trpc/server/routers/_app"
 import { env } from "@/utils/env"
@@ -13,27 +15,33 @@ export const metadata: Metadata = {
   description: "Git your time",
 }
 
-const fetchRepo = async () => {
-  try {
-    return await caller.repo.get({ repoName: env.GITHUB_REPOSITORY_NAME! })
-  } catch (e) {
-    if (e instanceof TRPCGhapiError && e.response) {
-      // repo not exist, go setup
-      if (e.response.status === 404) {
-        redirect("/setup")
-      }
-    } else {
-      throw e
-    }
-  }
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const repo = await fetchRepo()
+  const session = await auth()
+  const pathname = getPathname()
+
+  if (!session && pathname !== "/signin") {
+    redirect("/signin")
+  }
+
+  let repo
+  if (pathname !== "/setup") {
+    try {
+      repo = await caller.repo.get({ repoName: env.GITHUB_REPOSITORY_NAME! })
+    } catch (e) {
+      if (e instanceof TRPCGhapiError && e.response) {
+        // repo not exist, go setup
+        if (e.response.status === 404) {
+          redirect("/setup")
+        }
+      } else {
+        throw e
+      }
+    }
+  }
 
   return (
     <html suppressHydrationWarning>

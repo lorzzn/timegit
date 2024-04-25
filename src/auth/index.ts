@@ -5,12 +5,14 @@ import GitHubProvider, { GithubEmail } from "next-auth/providers/github"
 import { Provider } from "next-auth/providers/index"
 
 export type ServerSession = (Session & { token: string; login: string }) | null
+export const githubScope =
+  env.GITHUB_REPOSITORY_PRIVATE === "true" ? "read:user user:email repo" : "read:user user:email public_repo"
 
 const providers: Provider[] = [
   GitHubProvider({
     clientId: env.GITHUB_OAUTH_CLIENT_ID!,
     clientSecret: env.GITHUB_OAUTH_SECRET!,
-    authorization: { params: { scope: "read:user user:email repo" } },
+    authorization: { params: { scope: githubScope } },
     httpOptions: {
       timeout: 100000,
     },
