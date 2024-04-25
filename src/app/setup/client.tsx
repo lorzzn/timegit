@@ -45,7 +45,7 @@ const Setup = (props: SetupProps) => {
             </ul>
           </div>
           <div className="flex mt-10">
-            <Button color="primary" className="flex-1" size="lg" onClick={onConfirm} isLoading={mutation.isPending}>
+            <Button color="primary" className="flex-1" size="lg" onPress={onConfirm} isLoading={mutation.isPending}>
               Confirm
             </Button>
           </div>

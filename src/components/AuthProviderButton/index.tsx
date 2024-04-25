@@ -6,7 +6,7 @@ import { ClientSafeProvider, signIn } from "next-auth/react"
 
 const AuthProviderButton = ({ provider }: { provider: ClientSafeProvider }) => {
   return (
-    <Button size="lg" onClick={() => signIn(provider.id)}>
+    <Button size="lg" onPress={() => signIn(provider.id)}>
       {provider.id === "github" && <RiGithubFill />}
       <span>Continue with {provider.name}</span>
     </Button>

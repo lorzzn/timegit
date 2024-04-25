@@ -34,7 +34,7 @@ const Header = () => {
 
       <div className={twclx(["flex space-x-4 items-center"])}>
         <Skeleton isLoaded={!!theme} className="h-8 rounded">
-          <Button isIconOnly radius="sm" size="sm" variant="light" onClick={changeTheme}>
+          <Button isIconOnly radius="sm" size="sm" variant="light" onPress={changeTheme}>
             {theme === "light" && <RiSunFill size={"1.25rem"} />}
             {theme === "dark" && <RiMoonFill size={"1.25rem"} />}
           </Button>
@@ -58,7 +58,7 @@ const Header = () => {
                 </DropdownTrigger>
 
                 <DropdownMenu aria-label="user menu">
-                  <DropdownItem textValue="sign out" onClick={() => signOut()}>
+                  <DropdownItem textValue="sign out" onPress={() => signOut()}>
                     <span>sign out</span>
                   </DropdownItem>
                 </DropdownMenu>
@@ -67,7 +67,7 @@ const Header = () => {
 
             <Else>
               <Button
-                onClick={() => signIn()}
+                onPress={() => signIn()}
                 radius="sm"
                 size="sm"
                 variant="bordered"
