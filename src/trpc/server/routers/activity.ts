@@ -36,7 +36,7 @@ export const activity = router({
         order: "desc",
         page,
         per_page,
-      })
+      } as Endpoints["GET /search/labels"]["parameters"])
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
       await validateGhapiResponse(response)

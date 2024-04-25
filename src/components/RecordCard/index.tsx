@@ -72,7 +72,7 @@ const RecordCard = ({ record, className, onDelete }: RecordCardProps) => {
           </CardBody>
         </When>
         <When condition={!!record.description}>
-          <CardFooter className="text-lg">{record.description}</CardFooter>
+          <CardFooter className="text-start">{record.description}</CardFooter>
         </When>
       </Card>
 

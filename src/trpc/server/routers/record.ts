@@ -1,6 +1,5 @@
 import Activity from "@/models/activity"
 import Record from "@/models/record"
-import { dayjsZodUtil } from "@/utils/date"
 import { daydate } from "@/utils/daydate"
 import { getUserTimegitRepoPath, ghapi, validateGhapiResponse } from "@/utils/ghapi"
 import { buildQuery } from "@/utils/stringFuncs"
@@ -18,51 +17,72 @@ export const record = router({
 
     const _data =
       (await response.json()) as Endpoints["GET /repos/{owner}/{repo}/issues/{issue_number}"]["response"]["data"]
-    const data = pick(_data, ["id", "url", "title", "body", "labels", "created_at", "updated_at", "html_url", "number"])
+    const data = pick(_data, [
+      "id",
+      "url",
+      "title",
+      "body",
+      "labels",
+      "created_at",
+      "updated_at",
+      "html_url",
+      "number",
+      "node_id",
+    ])
     return data as RecordsList[0]
   }),
   list: procedure
     .input(
       z.object({
-        date: dayjsZodUtil,
-        page: z.number().default(1),
-        per_page: z.number().default(30),
+        date: daydate.zodUtil,
+        limit: z.number().min(1).max(30).default(30),
+        cursor: z.number().min(1).default(1).nullish(),
       }),
     )
     .query(async ({ input, ctx }) => {
       const session = ctx.session
+      input.limit -= 1
+
+      const page = input.cursor ?? 1
+      // get one more item per page, so we can check if there is a next page.
+      const per_page = input.limit + 1
+
       const query = buildQuery({
         state: "open",
         labels: [Record.dateToLabelValue(input.date), "timegit"].join(","),
         sort: "created",
         direction: "asc",
-        page: input.page,
-        per_page: input.per_page,
+        page,
+        per_page,
       } as Endpoints["GET /repos/{owner}/{repo}/issues"]["parameters"])
 
       const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues?${query}`, session?.token)
       await validateGhapiResponse(response)
-      const data = ((await response.json()) as Endpoints["GET /repos/{owner}/{repo}/issues"]["response"]["data"]).map(
-        (item) => {
-          const picked = pick(item, [
-            "id",
-            "url",
-            "title",
-            "body",
-            "labels",
-            "created_at",
-            "updated_at",
-            "html_url",
-            "number",
-            "node_id",
-          ])
-          return {
-            ...picked,
-          }
-        },
-      )
+      const data = (await response.json()) as Endpoints["GET /repos/{owner}/{repo}/issues"]["response"]["data"]
 
-      return data as RecordsList
+      const items = data.map((item) => {
+        const picked = pick(item, [
+          "id",
+          "url",
+          "title",
+          "body",
+          "labels",
+          "created_at",
+          "updated_at",
+          "html_url",
+          "number",
+          "node_id",
+        ])
+        return {
+          ...picked,
+        }
+      }) as RecordsList
+      const nextCursor = items.length > input.limit ? page + 1 : null
+
+      return {
+        items,
+        nextCursor,
+      }
     }),
   create: procedure
     .input(
@@ -91,10 +111,10 @@ export const record = router({
     .input(
       z.object({
         number: z.number(),
-        date: dayjsZodUtil,
+        date: daydate.zodUtil,
         activity: Activity.zodUtil,
-        start: dayjsZodUtil,
-        end: dayjsZodUtil,
+        start: daydate.zodUtil,
+        end: daydate.zodUtil,
         description: z.string(),
       }),
     )

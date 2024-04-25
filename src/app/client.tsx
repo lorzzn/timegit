@@ -23,7 +23,8 @@ import {
   useDisclosure,
 } from "@nextui-org/react"
 import { RiAddFill } from "@remixicon/react"
-import React, { useState } from "react"
+import useWindowScroll from "beautiful-react-hooks/useWindowScroll"
+import React, { useRef, useState } from "react"
 import { When } from "react-if"
 
 const App = () => {
@@ -34,18 +35,50 @@ const App = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const records = trpc.record.list.useQuery(
+  const records = trpc.record.list.useInfiniteQuery(
     {
       date,
+      limit: 3,
     },
     {
       refetchOnWindowFocus: false,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   )
 
   // status
-  const isEmpty = !records.isFetching && records.isFetched && records.data?.length === 0
-  const isFetching = records.isFetching
+  const items = records.data?.pages.flatMap((page) => page.items) || []
+  const isEmpty = !records.isFetching && records.isFetched && items.length === 0
+  const isLoading = records.isFetching
+
+  // infinite scroll
+  const onWindowScroll = useWindowScroll()
+  const timeoutRef = useRef<NodeJS.Timeout>()
+
+  const onScrollEnd = () => {
+    if (isLoading) {
+      return
+    }
+    loadNextPage()
+  }
+
+  onWindowScroll((event) => {
+    const el = document.documentElement
+
+    if (el) {
+      const isBottom = Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 1
+      event.stopPropagation()
+
+      if (isBottom) {
+        clearTimeout(timeoutRef.current)
+
+        timeoutRef.current = setTimeout(() => {
+          onScrollEnd()
+          clearTimeout(timeoutRef.current)
+        }, 300)
+      }
+    }
+  })
 
   const showCalendarModal = () => {
     setCalendarDate(date.toCalendarDate())
@@ -63,6 +96,12 @@ const App = () => {
 
   const onCreate = () => {
     window.location.href = "/records/create"
+  }
+
+  const loadNextPage = () => {
+    if (records.hasNextPage) {
+      records.fetchNextPage()
+    }
   }
 
   const lineColRenderer = (showdot?: boolean, dotColor?: string) => (
@@ -98,11 +137,11 @@ const App = () => {
           </Button>
         </div>
 
-        {isFetching && (
+        <When condition={isLoading}>
           <div className="relative">
             <Progress size="sm" isIndeterminate aria-label="Fetching..." className="absolute -translate-y-full" />
           </div>
-        )}
+        </When>
         <Divider />
 
         <div className="flex-1 flex flex-col">
@@ -113,7 +152,7 @@ const App = () => {
           </When>
           <Spacer y={6} />
           <When condition={!isEmpty}>
-            {records.data?.map((record) => {
+            {items.map((record) => {
               const t = Record.fromIssueObject(record)
               const activityColor = t.activity?.color.toPercentageRgbString()
 
@@ -124,6 +163,14 @@ const App = () => {
                 </div>
               )
             })}
+          </When>
+
+          <When condition={records.hasNextPage && !isEmpty}>
+            <div className="flex justify-center py-6">
+              <Button variant="light" color="primary" isLoading={isLoading} onPress={loadNextPage}>
+                Load more
+              </Button>
+            </div>
           </When>
         </div>
       </div>

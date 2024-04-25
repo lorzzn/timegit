@@ -63,7 +63,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const list = trpc.activity.list.useInfiniteQuery(
     {
       repository_id: repoId,
-      limit: 20,
+      limit: 30,
     },
     {
       enabled: !!repoId && isOpen,
@@ -89,6 +89,8 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
   const onInfiniteScroll = useInfiniteScroll(infiniteScrollElementRef)
 
   onInfiniteScroll(() => {
+    if (isLoading) return
+
     loadNextPage()
   })
 
@@ -235,15 +237,13 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
                 </div>
               </When>
 
-              {list.hasNextPage && (
-                <When condition={1}>
-                  <div className="flex justify-center py-6">
-                    <Button variant="light" color="primary" isLoading={isLoading} onPress={loadNextPage}>
-                      Load more
-                    </Button>
-                  </div>
-                </When>
-              )}
+              <When condition={list.hasNextPage && !isEmpty}>
+                <div className="flex justify-center py-6">
+                  <Button variant="light" color="primary" isLoading={isLoading} onPress={loadNextPage}>
+                    Load more
+                  </Button>
+                </div>
+              </When>
 
               <When condition={isEmpty}>
                 <div className="flex-1 flex flex-col items-center text-foreground-400">
