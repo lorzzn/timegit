@@ -1,0 +1,67 @@
+{
+  "name": "timegit",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*": [
+      "npm run format",
+      "npm run lint ."
+    ]
+  },
+  "dependencies": {
+    "@emotion/css": "^11.11.2",
+    "@internationalized/date": "^3.5.2",
+    "@nextui-org/react": "^2.3.5",
+    "@rc-component/color-picker": "^1.5.3",
+    "@remixicon/react": "^4.2.0",
+    "@tanstack/react-query": "^5.29.2",
+    "@trpc/client": "^11.0.0-rc.346",
+    "@trpc/next": "^11.0.0-rc.346",
+    "@trpc/react-query": "^11.0.0-rc.346",
+    "@trpc/server": "^11.0.0-rc.346",
+    "beautiful-react-hooks": "^5.0.1",
+    "chalk": "^5.3.0",
+    "classnames": "^2.5.1",
+    "dayjs": "^1.11.10",
+    "framer-motion": "^11.1.5",
+    "js-yaml": "^4.1.0",
+    "next": "14.2.2",
+    "next-auth": "^4.24.7",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-if": "^4.1.5",
+    "superjson": "^2.2.1",
+    "tailwind-merge": "^2.3.0",
+    "tinycolor2": "^1.6.0",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.5",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@octokit/types": "^13.4.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/tinycolor2": "^1.4.6",
+    "@types/uuid": "^9.0.8",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "postcss": "^8",
+    "prettier": "3.2.5",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "tailwind-scrollbar": "^3.1.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
