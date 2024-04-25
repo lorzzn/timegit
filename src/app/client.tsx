@@ -131,10 +131,12 @@ const App = () => {
           <Button variant="light" radius="sm" size="lg" onPress={showCalendarModal}>
             {date.format("YYYY / MM / DD")}
           </Button>
-          <Button variant="light" radius="sm" size="lg" onPress={onCreate}>
-            <RiAddFill />
-            <span>Create</span>
-          </Button>
+          <When condition={date.format("YYYY / MM / DD") === today.format("YYYY / MM / DD")}>
+            <Button variant="light" radius="sm" size="lg" onPress={onCreate}>
+              <RiAddFill />
+              <span>Create</span>
+            </Button>
+          </When>
         </div>
 
         <When condition={isLoading}>

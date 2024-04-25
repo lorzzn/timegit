@@ -10,6 +10,7 @@ import { twclx } from "@/utils/twclx"
 import { ZonedDateTime } from "@internationalized/date"
 import {
   Button,
+  DateInput,
   Divider,
   Modal,
   ModalBody,
@@ -21,8 +22,8 @@ import {
   TimeInput,
   useDisclosure,
 } from "@nextui-org/react"
-import { RiCheckboxCircleFill, RiCloseFill } from "@remixicon/react"
-import { useEffect, useState } from "react"
+import { RiCheckboxCircleFill, RiCloseFill, RiErrorWarningFill } from "@remixicon/react"
+import { useEffect, useRef, useState } from "react"
 import { When } from "react-if"
 
 type OperateProps = {
@@ -38,6 +39,7 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
     },
     {
       enabled: operate === "edit" && !!number,
+      refetchOnWindowFocus: false,
     },
   )
 
@@ -59,7 +61,22 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
     }
   }, [data.isSuccess])
 
+  const timeInterval = useRef<ReturnType<typeof setInterval>>()
+  useEffect(() => {
+    if (operate === "create") {
+      timeInterval.current = setInterval(() => {
+        setStart(daydate().toZonedDateTime())
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(timeInterval.current)
+    }
+  }, [])
+
   const { isOpen, onClose, onOpen } = useDisclosure()
+  const [tipContent, setTipContent] = useState("")
+  const { isOpen: tipIsOpen, onClose: tipOnClose, onOpen: tipOnOpen } = useDisclosure()
 
   const createMutation = trpc.record.create.useMutation()
   const updateMutation = trpc.record.update.useMutation()
@@ -83,6 +100,11 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
   }, [isPending])
 
   const onConfirmButtonPress = () => {
+    if (daydate(end).isBefore(daydate(start))) {
+      setTipContent("End time must be after start time.")
+      tipOnOpen()
+      return
+    }
     if (data.data?.id) {
       updateMutation.mutate({
         number,
@@ -117,14 +139,23 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
       </div>
       <Divider className="my-3" />
 
-      <div className="text-lg py-3">Start and end time</div>
-      <TimeInput hourCycle={24} isRequired label="Start Time" value={start} onChange={onStartChange} />
-      <Divider className="my-3" />
-      <TimeInput hourCycle={24} isRequired label="End Time" value={end} onChange={onEndChange} />
+      <div className="text-lg py-3">Start {"(Non-editable)"}</div>
+      <DateInput aria-label="date" hourCycle={24} isReadOnly className="pointer-events-none" value={start} />
+
+      <div className="text-lg py-3">End</div>
+      <div className="flex items-center">
+        <TimeInput
+          hourCycle={24}
+          isRequired
+          label={`End Time (${daydate(end).format("YYYY-MM-DD")})`}
+          value={end}
+          onChange={onEndChange}
+        />
+      </div>
       <Divider className="my-3" />
 
       <div className="text-lg py-3 flex items-center justify-between">
-        <div>Pick an activity</div>
+        <div>Activity</div>
         <Button
           size="sm"
           isIconOnly
@@ -171,6 +202,23 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
             </When>
           </ModalBody>
           <ModalFooter />
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={tipIsOpen} onClose={tipOnClose}>
+        <ModalContent>
+          <ModalHeader />
+          <ModalBody>
+            <div className="flex flex-col items-center justify-center">
+              <RiErrorWarningFill className="text-warning" size={"5rem"} />
+              <div className="text-2xl pt-6">{tipContent}</div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button size="lg" color="primary" onPress={tipOnClose} className="flex-1">
+              Ok, i got it
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
 
