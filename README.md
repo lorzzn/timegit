@@ -30,3 +30,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 [GPL-3.0](https://github.com/Lorzzn/timegit/blob/main/LICENSE) © [Lorzzn](https://github.com/Lorzzn)
 
 ## Some Screenshots
+
+![screenshot-signin](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/signin.png)
+
+![screenshot-home1](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/home1.png)
+
+![screenshot-home2](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/home2.png)
+
+![screenshot-activity1](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/activity1.png)
+
+![screenshot-activity2](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/activity2.png)
+
+![screenshot-activity3](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/activity3.png)
+
+![screenshot-record1](https://raw.githubusercontent.com/lorzzn/timegit/main/screenshots/record1.png)
