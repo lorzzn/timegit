@@ -139,7 +139,7 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
       </div>
       <Divider className="my-3" />
 
-      <div className="text-lg py-3">Start {"(Non-editable)"}</div>
+      <div className="text-lg py-3">Start {"(read only)"}</div>
       <DateInput aria-label="date" hourCycle={24} isReadOnly className="pointer-events-none" value={start} />
 
       <div className="text-lg py-3">End</div>
