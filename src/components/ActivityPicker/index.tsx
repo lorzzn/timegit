@@ -10,12 +10,13 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Spinner,
+  Progress,
   useDisclosure,
 } from "@nextui-org/react"
 import { RiAddFill, RiArrowLeftLine, RiRefreshLine } from "@remixicon/react"
+import useInfiniteScroll from "beautiful-react-hooks/useInfiniteScroll"
 import { pick } from "lodash"
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
+import { RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { Else, If, Then, When } from "react-if"
 import ActivityCard from "../ActivityCard"
 
@@ -59,19 +60,37 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
     updateCurrent()
   }
 
-  const list = trpc.activity.list.useQuery(
+  const list = trpc.activity.list.useInfiniteQuery(
     {
       repository_id: repoId,
+      limit: 20,
     },
     {
       enabled: !!repoId && isOpen,
       refetchOnWindowFocus: false,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   )
 
   // status
-  const isEmpty = !list.isFetching && list.isFetched && list.data?.total_count === 0
   const isLoading = list.isFetching || createMutation.isPending
+  const items = list.data?.pages.flatMap((page) => page.items) || []
+  const isEmpty = !list.isFetching && list.isFetched && items.length === 0
+
+  // infinite scroll
+  const modalref = useRef<HTMLDivElement>(null)
+  const infiniteScrollElementRef = useMemo(() => {
+    let current = null
+    if (modalref.current) {
+      current = modalref.current.querySelector("#infinity-scroll-element")
+    }
+    return { current } as RefObject<HTMLElement>
+  }, [modalref.current])
+  const onInfiniteScroll = useInfiniteScroll(infiniteScrollElementRef)
+
+  onInfiniteScroll(() => {
+    loadNextPage()
+  })
 
   useEffect(() => {
     updateCurrent()
@@ -92,6 +111,12 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
       name: currentActivity.name,
     })
     list.refetch()
+  }
+
+  const loadNextPage = () => {
+    if (list.hasNextPage) {
+      list.fetchNextPage()
+    }
   }
 
   const onActivitySave = async (activity: ActivityModel) => {
@@ -140,11 +165,24 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
     <>
       <ActivityCard activity={value} onPress={onOpen} className={twclx([{ "!bg-foreground-100": !value }])} />
 
-      <Modal size="full" isOpen={isOpen} onClose={onClose}>
+      <Modal size="full" isOpen={isOpen} onClose={onClose} ref={modalref}>
         <ModalContent>
-          <ModalHeader>Select an activity</ModalHeader>
+          <ModalHeader>
+            <span>Select an activity</span>
+          </ModalHeader>
 
-          <ModalBody className={twclx(["flex flex-col relative items-center overflow-y-auto"])}>
+          <ModalBody
+            id="infinity-scroll-element"
+            className={twclx(["flex flex-col relative items-center overflow-y-auto"])}
+          >
+            <When condition={isLoading}>
+              <Progress
+                aria-label="loading"
+                size="sm"
+                isIndeterminate
+                className="absolute left-0 right-0 top-0 pointer-events-none"
+              />
+            </When>
             <div className={twclx([widthClass])}>
               {/* here is creat activity., show the card for editing */}
               <If condition={isEditing && !currentActivity?.id}>
@@ -168,9 +206,9 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
               </If>
 
               {/* activities list */}
-              <When condition={!isEmpty && !isLoading}>
+              <When condition={!isEmpty}>
                 <div className="flex flex-col space-y-3">
-                  {list.data?.items.map((item) => {
+                  {items.map((item) => {
                     const t = new ActivityModel({
                       name: item.name,
                       id: item.id,
@@ -197,25 +235,20 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
                 </div>
               </When>
 
-              {/* {list.data && (
+              {list.hasNextPage && (
                 <When condition={1}>
                   <div className="flex justify-center py-6">
-                    <Button>
-                      Load more {list.data.page} {list.data.per_page} {list.data.total_count}
+                    <Button variant="light" color="primary" isLoading={isLoading} onPress={loadNextPage}>
+                      Load more
                     </Button>
                   </div>
                 </When>
-              )} */}
+              )}
 
               <When condition={isEmpty}>
                 <div className="flex-1 flex flex-col items-center text-foreground-400">
                   <span className="flex-1 flex items-center justify-center">No activities found.</span>
                 </div>
-              </When>
-
-              {/* put loading at the end */}
-              <When condition={isLoading}>
-                <Spinner size="lg" className="absolute inset-0 bg-background z-50" />
               </When>
             </div>
           </ModalBody>

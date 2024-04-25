@@ -1,3 +1,4 @@
+import { toString } from "lodash"
 import tinycolor from "tinycolor2"
 import { z } from "zod"
 
@@ -40,9 +41,9 @@ class Activity {
     const { value, color, description, id, name, updated } = props
 
     this.id = id
-    this.value = String(value)
+    this.value = toString(value)
     this.color = tinycolor(color)
-    this.description = String(description)
+    this.description = toString(description)
     this.updated = Boolean(updated)
 
     if (name) {

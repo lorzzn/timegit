@@ -19,31 +19,35 @@ export const activity = router({
     .input(
       z.object({
         repository_id: z.number(),
-        page: z.number().default(1),
-        per_page: z.number().default(30),
+        limit: z.number().min(1).max(30).default(30),
+        cursor: z.number().min(1).default(1).nullish(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const session = ctx.session
+
+      const page = input.cursor ?? 1
+      const per_page = input.limit
 
       const query = buildQuery({
         repository_id: input.repository_id,
         q: Activity.labelPrefix,
         sort: "created",
         order: "desc",
-        page: input.page,
-        per_page: input.per_page,
+        page,
+        per_page,
       })
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
       await validateGhapiResponse(response)
-      const data = (await response.json()) as Endpoints["GET /search/labels"]["response"]["data"] & {
-        page: number
-        per_page: number
+      const data = (await response.json()) as Endpoints["GET /search/labels"]["response"]["data"]
+      const { total_count, items } = data
+      const nextCursor = page * per_page < total_count ? page + 1 : null
+
+      return {
+        items,
+        nextCursor,
       }
-      data.page = input.page
-      data.per_page = input.per_page
-      return data
     }),
   create: procedure
     .input(z.object({ name: z.string(), color: z.string().optional(), description: z.string().max(100).optional() }))

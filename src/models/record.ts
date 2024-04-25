@@ -3,7 +3,7 @@ import { DayDate, daydate } from "@/utils/daydate"
 import { randomString } from "@/utils/stringFuncs"
 import { Endpoints } from "@octokit/types"
 import { dump, load } from "js-yaml"
-import { compact } from "lodash"
+import { compact, toString } from "lodash"
 import tinycolor from "tinycolor2"
 import Activity from "./activity"
 
@@ -105,8 +105,8 @@ class Record {
         activity &&
         new Activity({
           ...activity,
-          color: tinycolor(String(activity.color)).toHexString(),
-          description: String(activity.description),
+          color: tinycolor(toString(activity.color)).toHexString(),
+          description: toString(activity.description),
         }),
       start: daydate(start),
       end: daydate(end),
