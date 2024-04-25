@@ -38,7 +38,7 @@ const App = () => {
   const records = trpc.record.list.useInfiniteQuery(
     {
       date,
-      limit: 3,
+      limit: 30,
     },
     {
       refetchOnWindowFocus: false,
