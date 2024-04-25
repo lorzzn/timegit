@@ -1,5 +1,6 @@
 import { ghapi, validateGhapiResponse } from "@/utils/ghapi"
 import { Endpoints } from "@octokit/types"
+import { pick } from "lodash"
 import { z } from "zod"
 import { procedure, router } from ".."
 
@@ -39,6 +40,20 @@ export const repo = router({
 
       await validateGhapiResponse(response)
       const data = (await response.json()) as Endpoints["POST /user/repos"]["response"]["data"]
-      return data
+      return pick(data, [
+        "id",
+        "name",
+        "html_url",
+        "visibility",
+        "owner",
+        "full_name",
+        "private",
+        "permissions",
+        "node_id",
+        "description",
+        "disabled",
+        "created_at",
+        "archived",
+      ])
     }),
 })

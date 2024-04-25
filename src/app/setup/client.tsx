@@ -15,10 +15,11 @@ const Setup = (props: SetupProps) => {
 
   const onConfirm = async () => {
     if (props.repoName) {
-      mutation.mutate({
+      await mutation.mutateAsync({
         repoName: props.repoName,
         private: props.repoPrivate,
       })
+      window.location.href = "/"
     }
   }
 
