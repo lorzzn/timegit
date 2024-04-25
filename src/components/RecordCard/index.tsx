@@ -52,7 +52,7 @@ const RecordCard = ({ record, className, onDelete }: RecordCardProps) => {
           </span>
         </CardHeader>
         <When condition={!!record.activity?.value}>
-          <CardBody className="py-0">
+          <CardBody className="pt-0">
             <div className="w-auto">
               <ActivityCard
                 pressable={false}
@@ -72,7 +72,7 @@ const RecordCard = ({ record, className, onDelete }: RecordCardProps) => {
           </CardBody>
         </When>
         <When condition={!!record.description}>
-          <CardFooter className="text-start">{record.description}</CardFooter>
+          <CardFooter className="text-start pt-0">{record.description}</CardFooter>
         </When>
       </Card>
 
