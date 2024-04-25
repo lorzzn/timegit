@@ -1,5 +1,6 @@
 import Activity from "@/models/activity"
 import Record from "@/models/record"
+import { trpc } from "@/trpc/client"
 import { twclx } from "@/utils/twclx"
 import {
   Button,
@@ -21,16 +22,25 @@ import ActivityCard from "../ActivityCard"
 export type RecordCardProps = {
   record: Record
   className?: string
+  onDelete?: () => void
 }
 
-const RecordCard = ({ record, className }: RecordCardProps) => {
+const RecordCard = ({ record, className, onDelete }: RecordCardProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const deleteMutation = trpc.record.delete.useMutation()
 
   const editRecord = () => {
     window.location.href = `/records/edit?number=${record.number}`
   }
 
-  const deleteRecord = () => {}
+  const deleteRecord = async () => {
+    if (record.nodeId) {
+      await deleteMutation.mutateAsync({
+        issueNodeId: record.nodeId,
+      })
+      onDelete?.()
+    }
+  }
 
   return (
     <>

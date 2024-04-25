@@ -115,13 +115,12 @@ const App = () => {
           <When condition={!isEmpty}>
             {records.data?.map((record) => {
               const t = Record.fromIssueObject(record)
-              console.log(t)
               const activityColor = t.activity?.color.toPercentageRgbString()
 
               return (
                 <div className="grid grid-cols-[30px_auto]" key={t.id}>
                   {lineColRenderer(true, activityColor)}
-                  {contentColRenderer(<RecordCard record={t} className="my-3" />)}
+                  {contentColRenderer(<RecordCard record={t} className="my-3" onDelete={() => records.refetch()} />)}
                 </div>
               )
             })}

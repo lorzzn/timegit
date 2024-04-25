@@ -14,7 +14,7 @@ const CreatePage = (props: CreatePageProps) => {
   if (!["create", "edit"].includes(props.params.operate)) {
     redirect("/404")
   }
-  if (!props.searchParams.number) {
+  if (props.params.operate === "edit" && !props.searchParams.number) {
     redirect("/")
   }
 

@@ -54,6 +54,7 @@ export const record = router({
             "updated_at",
             "html_url",
             "number",
+            "node_id",
           ])
           return {
             ...picked,
@@ -117,19 +118,32 @@ export const record = router({
   delete: procedure
     .input(
       z.object({
-        id: z.number(),
+        issueNodeId: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const session = ctx.session
-      const response = await ghapi(`/repos/${getUserTimegitRepoPath(session)}/issues/${input.id}`, session?.token, {
-        method: "DELETE",
+      const query = `
+mutation {
+  deleteIssue(input: {issueId: "${input.issueNodeId}"}) {
+    clientMutationId
+  }
+}
+`
+      const response = await ghapi("/graphql", session?.token, {
+        method: "POST",
+        body: JSON.stringify({
+          query,
+        }),
       })
 
-      console.log(response.status)
-      console.log(response.body)
+      if (response.ok) {
+        return true
+      } else {
+        await validateGhapiResponse(response)
+        const data = await response.json()
 
-      await validateGhapiResponse(response)
-      return true
+        return data
+      }
     }),
 })

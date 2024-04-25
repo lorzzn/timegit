@@ -71,11 +71,11 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
 
   // status
   const isEmpty = !list.isFetching && list.isFetched && list.data?.total_count === 0
-  const isFetching = list.isFetching
+  const isLoading = list.isFetching || createMutation.isPending
 
   useEffect(() => {
     updateCurrent()
-  }, [isFetching])
+  }, [isLoading])
 
   const onCreateButtonPress = () => {
     setCurrentActivity(new ActivityModel({}))
@@ -168,7 +168,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
               </If>
 
               {/* activities list */}
-              <When condition={!isEmpty}>
+              <When condition={!isEmpty && !isLoading}>
                 <div className="flex flex-col space-y-3">
                   {list.data?.items.map((item) => {
                     const t = new ActivityModel({
@@ -197,6 +197,16 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
                 </div>
               </When>
 
+              {/* {list.data && (
+                <When condition={1}>
+                  <div className="flex justify-center py-6">
+                    <Button>
+                      Load more {list.data.page} {list.data.per_page} {list.data.total_count}
+                    </Button>
+                  </div>
+                </When>
+              )} */}
+
               <When condition={isEmpty}>
                 <div className="flex-1 flex flex-col items-center text-foreground-400">
                   <span className="flex-1 flex items-center justify-center">No activities found.</span>
@@ -204,7 +214,7 @@ export const ActivityPicker = forwardRef<ActivityPickerRef, ActivityPickerProps>
               </When>
 
               {/* put loading at the end */}
-              <When condition={isFetching || createMutation.isPending}>
+              <When condition={isLoading}>
                 <Spinner size="lg" className="absolute inset-0 bg-background z-50" />
               </When>
             </div>

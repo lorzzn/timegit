@@ -10,6 +10,7 @@ import Activity from "./activity"
 export type RecordProps = {
   id?: number
   number?: number
+  nodeId?: string
   date: DayDate
   activity?: Activity
   start: DayDate
@@ -22,6 +23,7 @@ class Record {
 
   id: RecordProps["id"]
   number: RecordProps["number"]
+  nodeId: RecordProps["nodeId"]
   date: RecordProps["date"]
   activity: RecordProps["activity"]
   start: RecordProps["start"]
@@ -30,10 +32,11 @@ class Record {
 
   constructor(props: RecordProps) {
     this.validateProps(props)
-    const { date, activity, start, end, description, id, number } = props
+    const { date, activity, start, end, description, id, number, nodeId } = props
 
     this.id = id
     this.number = number
+    this.nodeId = nodeId
     this.date = daydate(date)
     ;(this.activity =
       activity &&
@@ -66,8 +69,8 @@ class Record {
   }
 
   static fromIssueObject(issue: RecordsList[0]): Record {
-    const { body, id, number } = issue
-    if (!id || !body || !number) {
+    const { body, id, number, node_id } = issue
+    if (!id || !body || !number || !node_id) {
       throw new Error("Issue format error")
     }
 
@@ -96,6 +99,7 @@ class Record {
     return new Record({
       id,
       number,
+      nodeId: node_id,
       date: daydate(date),
       activity:
         activity &&

@@ -37,8 +37,12 @@ export const activity = router({
 
       const response = await ghapi(`/search/labels?${query}`, session?.token)
       await validateGhapiResponse(response)
-      const data = (await response.json()) as Endpoints["GET /search/labels"]["response"]["data"]
-
+      const data = (await response.json()) as Endpoints["GET /search/labels"]["response"]["data"] & {
+        page: number
+        per_page: number
+      }
+      data.page = input.page
+      data.per_page = input.per_page
       return data
     }),
   create: procedure
