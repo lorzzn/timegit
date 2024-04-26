@@ -28,7 +28,7 @@ const Header = () => {
         "w-full flex justify-between items-center h-12 bg-foreground-50 px-6 sm:px-12 backdrop-blur sticky top-0 shadow z-40",
       ])}
     >
-      <Link className={twclx(["mr-24"])} href="/">
+      <Link className={twclx(["mr-24"])} href={authed ? "/" : "/signin"}>
         <Logo />
       </Link>
 
