@@ -27,6 +27,7 @@
     "@trpc/next": "^11.0.0-rc.346",
     "@trpc/react-query": "^11.0.0-rc.346",
     "@trpc/server": "^11.0.0-rc.346",
+    "@vercel/speed-insights": "^1.0.10",
     "beautiful-react-hooks": "^5.0.1",
     "chalk": "^5.3.0",
     "classnames": "^2.5.1",

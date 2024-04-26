@@ -6,6 +6,7 @@ import { TRPCGhapiError } from "@/trpc/errors/ghapi"
 import { caller } from "@/trpc/server/routers/_app"
 import { env } from "@/utils/env"
 import "@rc-component/color-picker/assets/index.css"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import "./globals.css"
@@ -55,6 +56,7 @@ export default async function RootLayout({
         <LayoutContextProvider repo={repo}>
           <Layout>{children}</Layout>
         </LayoutContextProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
