@@ -11,10 +11,10 @@ export type RecordProps = {
   id?: number
   number?: number
   nodeId?: string
-  date: DayDate
+  date: DayDate | string
   activity?: Activity
-  start: DayDate
-  end: DayDate
+  start: DayDate | string
+  end: DayDate | string
   description: string
 }
 
@@ -24,10 +24,10 @@ class Record {
   id: RecordProps["id"]
   number: RecordProps["number"]
   nodeId: RecordProps["nodeId"]
-  date: RecordProps["date"]
+  date: DayDate
   activity: RecordProps["activity"]
-  start: RecordProps["start"]
-  end: RecordProps["end"]
+  start: DayDate
+  end: DayDate
   description: RecordProps["description"]
 
   constructor(props: RecordProps) {
@@ -64,7 +64,8 @@ class Record {
     }
   }
 
-  static dateToLabelValue(date: DayDate) {
+  static dateToLabelValue(date: DayDate | string) {
+    date = daydate(date)
     return `${Record.dateLabelPrefix}${date.year()}-${date.month() + 1}-${date.date()}`
   }
 

@@ -38,7 +38,7 @@ export class DayDate {
 
   static zodUtil = z
     .custom<DayDate>((val: any) => daydate(val).isValid(), "Invalid date")
-    .transform((val) => daydate(val))
+    .transform((val) => daydate(val).toISOString())
 
   toZonedDateTime() {
     // dayjs offset use minutes, while ZonedDateTime use milliseconds.
