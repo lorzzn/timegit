@@ -31,7 +31,7 @@ export class DayDate {
   }
 
   static fromCalendarDate(date: CalendarDate) {
-    return new DayDate(date.toDate(dayjs.tz.guess()))
+    return new DayDate(date.toDate("utc"))
   }
 
   static tz = dayjs.tz
