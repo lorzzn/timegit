@@ -65,7 +65,7 @@ class Record {
   }
 
   static dateToLabelValue(date: DayDate) {
-    return `${Record.dateLabelPrefix}${date.startOf("date").valueOf()}`
+    return `${Record.dateLabelPrefix}${date.tz("utc").startOf("date").valueOf()}`
   }
 
   static fromIssueObject(issue: RecordsList[0]): Record {
