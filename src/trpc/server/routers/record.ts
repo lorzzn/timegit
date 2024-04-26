@@ -88,7 +88,7 @@ export const record = router({
     .input(
       z.object({
         date: daydate.zodUtil,
-        activity: Activity.zodUtil,
+        activity: Activity.zodUtil.optional(),
         start: daydate.zodUtil,
         end: daydate.zodUtil,
         description: z.string(),
@@ -112,7 +112,7 @@ export const record = router({
       z.object({
         number: z.number(),
         date: daydate.zodUtil,
-        activity: Activity.zodUtil,
+        activity: Activity.zodUtil.optional(),
         start: daydate.zodUtil,
         end: daydate.zodUtil,
         description: z.string(),

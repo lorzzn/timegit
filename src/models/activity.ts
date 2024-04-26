@@ -36,7 +36,7 @@ class Activity {
   description: string
   updated: boolean
 
-  constructor(props: ActivityProps) {
+  constructor(props: ActivityProps = {}) {
     this.validateProps(props)
     const { value, color, description, id, name, updated } = props
 
@@ -51,7 +51,7 @@ class Activity {
     }
   }
 
-  private validateProps(props: ActivityProps) {
+  private validateProps(props: ActivityProps = {}) {
     const { description } = props
     if (description && description.length > 100) {
       throw new Error("Label description is too long")

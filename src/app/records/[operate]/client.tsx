@@ -82,8 +82,9 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
   const updateMutation = trpc.record.update.useMutation()
 
   const isPending = createMutation.isPending || updateMutation.isPending
-  const isSuccess =
-    (createMutation.isSuccess && !createMutation.isPending) || (updateMutation.isSuccess && !updateMutation.isPending)
+  const isSuccess = !isPending && (createMutation.isSuccess || updateMutation.isSuccess)
+  const isError = !isPending && !isSuccess && (createMutation.isError || updateMutation.isError)
+  const errorMsg = createMutation.error || updateMutation.error
 
   const onStartChange = (time: ZonedDateTime) => {
     setStart(time)
@@ -199,6 +200,13 @@ const Operate = ({ operate, number: _number }: OperateProps) => {
                 Back to home
               </Button>
               <Button onPress={onClose}>Close</Button>
+            </When>
+            <When condition={isError}>
+              <div className="flex flex-col items-center justify-center pb-12">
+                <RiErrorWarningFill className="text-warning" size={"5rem"} />
+                <div className="text-2xl">Oops, something went wrong.</div>
+                <div className="text-center pt-3">{errorMsg?.message}</div>
+              </div>
             </When>
           </ModalBody>
           <ModalFooter />
