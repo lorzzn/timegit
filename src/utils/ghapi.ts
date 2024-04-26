@@ -63,5 +63,12 @@ export const validateGhapiResponse = async (_response: Response) => {
 }
 
 export const getUserTimegitRepoPath = (session: ServerSession) => {
+  if (!session) {
+    throw new TRPCGhapiError({
+      code: "UNAUTHORIZED",
+      message: "You are not logged in",
+    })
+  }
+
   return `${session?.login}/${env.GITHUB_REPOSITORY_NAME}`
 }

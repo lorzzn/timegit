@@ -65,7 +65,7 @@ class Record {
   }
 
   static dateToLabelValue(date: DayDate) {
-    return `${Record.dateLabelPrefix}${date.year()}-${date.month() + 1}-${date.date()}`
+    return `${Record.dateLabelPrefix}${date.startOf("date").valueOf()}`
   }
 
   static fromIssueObject(issue: RecordsList[0]): Record {
@@ -119,8 +119,8 @@ class Record {
       title: randomString(8, "Timegit | "),
       labels: compact(["timegit", Record.dateToLabelValue(this.date), this.activity?.name]),
       body: dump({
-        start: this.start.format("YYYY-MM-DD HH:mm:ss"),
-        end: this.end.format("YYYY-MM-DD HH:mm:ss"),
+        start: this.start.format("YYYY-MM-DD HH:mm:ssZ"),
+        end: this.end.format("YYYY-MM-DD HH:mm:ssZ"),
         description: this.description,
       }),
     }
